@@ -36,6 +36,7 @@ export const Web3AuthContext = createContext({
   chain: "",
   setChain: () => {},
   walletAddress: null,
+  ensName: null,
   login: async () => {},
   logout: async () => {},
   getNetwork: async () => {},
@@ -56,6 +57,7 @@ export const Web3AuthProvider = ({ children }) => {
   const [web3AuthUser, setWeb3AuthUser] = useState(null);
   const [chain, setChain] = useState("polygon");
   const [walletAddress, setWalletAddress] = useState(null);
+  const [ensName, setEnsName] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
 
   // web3authイベントリスナー
@@ -87,6 +89,8 @@ export const Web3AuthProvider = ({ children }) => {
       console.log("disconnected");
       setWeb3AuthUser(null);
       setProvider(null);
+      setWalletAddress(null);
+      setEnsName(null);
     });
 
     web3Auth.on(ADAPTER_EVENTS.ERRORED, (error) => {
@@ -134,6 +138,15 @@ export const Web3AuthProvider = ({ children }) => {
     }
   };
 
+  const initEns = async (walletAddress) => {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://eth-mainnet.g.alchemy.com/v2/Oa1UzWKEbhz_YAxLvActoqF2LTw4Bw1X"
+    );
+    const ensName = await provider.lookupAddress(walletAddress);
+
+    return ensName;
+  };
+
   // web3auth初期化
   useEffect(() => {
     const init = async () => {
@@ -146,9 +159,14 @@ export const Web3AuthProvider = ({ children }) => {
 
   // wallet addressのセット
   useEffect(() => {
+    if (!provider) {
+      return;
+    }
     const updateWalletAddress = async () => {
       const account = await getAccount();
+      const ensName = await initEns(account);
       setWalletAddress(account);
+      setEnsName(ensName ? ensName : "");
     };
     updateWalletAddress();
   }, [provider]);
@@ -232,6 +250,7 @@ export const Web3AuthProvider = ({ children }) => {
     chain,
     setChain,
     walletAddress,
+    ensName,
     login,
     logout,
     getNetwork,
