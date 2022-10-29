@@ -6,7 +6,7 @@ import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "../components/Loading";
 
 const Home = () => {
-  const { provider, walletAddress, ensName } = useWeb3Auth();
+  const { provider, walletAddress, ensName, ensTextRecord } = useWeb3Auth();
 
   return (
     <>
@@ -14,8 +14,19 @@ const Home = () => {
         <>
           {ensName !== null ? (
             <>
-              <Box>ENS: {ensName}</Box>
-              <Box>{walletAddress}</Box>
+              <Box>wallet address: {walletAddress}</Box>
+              <Box>ENS domain: {ensName}</Box>
+              <Box>email: {ensTextRecord.email}</Box>
+              <Box>url: {ensTextRecord.url}</Box>
+              <Box>avatar: {ensTextRecord.avatar}</Box>
+              <Box>description: {ensTextRecord.description}</Box>
+              <Box>notice: {ensTextRecord.notice}</Box>
+              <Box>keywords: {ensTextRecord.keywords}</Box>
+              <Box>discord: {ensTextRecord.discord}</Box>
+              <Box>github: {ensTextRecord.github}</Box>
+              <Box>reddit: {ensTextRecord.reddit}</Box>
+              <Box>twitter: {ensTextRecord.twitter}</Box>
+              <Box>telegram: {ensTextRecord.telegram}</Box>
             </>
           ) : (
             <>

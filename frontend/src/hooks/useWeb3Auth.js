@@ -4,6 +4,7 @@ import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
 import { Web3Auth } from "@web3auth/web3auth";
 import { CHAIN_NAMESPACES } from "@web3auth/base";
 import { ethers } from "ethers";
+import { ENS } from "@ensdomains/ensjs";
 // import logo from "../public/logo.svg";
 
 const CHAIN_CONFIGS = {
@@ -37,6 +38,7 @@ export const Web3AuthContext = createContext({
   setChain: () => {},
   walletAddress: null,
   ensName: null,
+  ensTextRecord: {},
   login: async () => {},
   logout: async () => {},
   getNetwork: async () => {},
@@ -57,6 +59,20 @@ export const Web3AuthProvider = ({ children }) => {
   const [web3AuthUser, setWeb3AuthUser] = useState(null);
   const [chain, setChain] = useState("polygon");
   const [walletAddress, setWalletAddress] = useState(null);
+  const [ensInstance, setEnsInstance] = useState(null);
+  const [ensTextRecord, setEnsTextRecord] = useState({
+    email: "",
+    url: "",
+    avatar: "",
+    description: "",
+    notice: "",
+    keywords: "",
+    discord: "",
+    github: "",
+    reddit: "",
+    twitter: "",
+    telegram: "",
+  });
   const [ensName, setEnsName] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
 
@@ -138,12 +154,47 @@ export const Web3AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * ENS 初期化処理
+   */
   const initEns = async (walletAddress) => {
-    const provider = new ethers.providers.JsonRpcProvider(
+    const ethProvider = new ethers.providers.JsonRpcProvider(
       "https://eth-mainnet.g.alchemy.com/v2/Oa1UzWKEbhz_YAxLvActoqF2LTw4Bw1X"
     );
-    const ensName = await provider.lookupAddress(walletAddress);
-
+    const ENSInstance = new ENS();
+    await ENSInstance.setProvider(ethProvider);
+    setEnsInstance(ENSInstance);
+    const ensName = (
+      await ENSInstance.batch(ENSInstance.getName.batch(walletAddress))
+    )[0].name;
+    console.log(ensName);
+    const ensTextRecord = await ENSInstance.batch(
+      ENSInstance.getText.batch("yusaka.eth", "email"),
+      ENSInstance.getText.batch("yusaka.eth", "url"),
+      ENSInstance.getText.batch("yusaka.eth", "avatar"),
+      ENSInstance.getText.batch("yusaka.eth", "description"),
+      ENSInstance.getText.batch("yusaka.eth", "notice"),
+      ENSInstance.getText.batch("yusaka.eth", "keywords"),
+      ENSInstance.getText.batch("yusaka.eth", "com.discord"),
+      ENSInstance.getText.batch("yusaka.eth", "com.github"),
+      ENSInstance.getText.batch("yusaka.eth", "com.reddit"),
+      ENSInstance.getText.batch("yusaka.eth", "com.twitter"),
+      ENSInstance.getText.batch("yusaka.eth", "org.telegram")
+    );
+    setEnsTextRecord({
+      email: ensTextRecord[0],
+      url: ensTextRecord[1],
+      avatar: ensTextRecord[2],
+      description: ensTextRecord[3],
+      notice: ensTextRecord[4],
+      keywords: ensTextRecord[5],
+      discord: ensTextRecord[6],
+      github: ensTextRecord[7],
+      reddit: ensTextRecord[8],
+      twitter: ensTextRecord[9],
+      telegram: ensTextRecord[10],
+    });
+    console.log(ensTextRecord);
     return ensName;
   };
 
@@ -251,6 +302,7 @@ export const Web3AuthProvider = ({ children }) => {
     setChain,
     walletAddress,
     ensName,
+    ensTextRecord,
     login,
     logout,
     getNetwork,

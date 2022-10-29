@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
+    "@ensdomains/ensjs": "^3.0.0-alpha.32",
     "@mui/material": "^5.10.11",
     "@mui/styled-engine": "^5.10.8",
     "@testing-library/jest-dom": "^5.16.5",
