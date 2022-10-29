@@ -1,0 +1,20 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm use $VERSION_NODE_16
+        - node -v
+        - npm ci
+    build:
+      commands:
+        - echo "REACT_APP_WEB3AUTH_CLIENT_ID=$REACT_APP_WEB3AUTH_CLIENT_ID" >> .env
+        - echo "REACT_APP_NETWORK=$REACT_APP_NETWORK" >> .env
+        - npm run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
