@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ADAPTER_EVENTS, WALLET_ADAPTERS } from "@web3auth/base";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
-import { Web3Auth } from "@web3auth/web3auth";
+import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES } from "@web3auth/base";
 import { ethers } from "ethers";
 import { ENS } from "@ensdomains/ensjs";
@@ -168,33 +168,36 @@ export const Web3AuthProvider = ({ children }) => {
       await ENSInstance.batch(ENSInstance.getName.batch(walletAddress))
     )[0].name;
     console.log(ensName);
-    const ensTextRecord = await ENSInstance.batch(
-      ENSInstance.getText.batch("yusaka.eth", "email"),
-      ENSInstance.getText.batch("yusaka.eth", "url"),
-      ENSInstance.getText.batch("yusaka.eth", "avatar"),
-      ENSInstance.getText.batch("yusaka.eth", "description"),
-      ENSInstance.getText.batch("yusaka.eth", "notice"),
-      ENSInstance.getText.batch("yusaka.eth", "keywords"),
-      ENSInstance.getText.batch("yusaka.eth", "com.discord"),
-      ENSInstance.getText.batch("yusaka.eth", "com.github"),
-      ENSInstance.getText.batch("yusaka.eth", "com.reddit"),
-      ENSInstance.getText.batch("yusaka.eth", "com.twitter"),
-      ENSInstance.getText.batch("yusaka.eth", "org.telegram")
-    );
-    setEnsTextRecord({
-      email: ensTextRecord[0],
-      url: ensTextRecord[1],
-      avatar: ensTextRecord[2],
-      description: ensTextRecord[3],
-      notice: ensTextRecord[4],
-      keywords: ensTextRecord[5],
-      discord: ensTextRecord[6],
-      github: ensTextRecord[7],
-      reddit: ensTextRecord[8],
-      twitter: ensTextRecord[9],
-      telegram: ensTextRecord[10],
-    });
-    console.log(ensTextRecord);
+    if (ensName) {
+      const ensTextRecord = await ENSInstance.batch(
+        ENSInstance.getText.batch(ensName, "email"),
+        ENSInstance.getText.batch(ensName, "url"),
+        ENSInstance.getText.batch(ensName, "avatar"),
+        ENSInstance.getText.batch(ensName, "description"),
+        ENSInstance.getText.batch(ensName, "notice"),
+        ENSInstance.getText.batch(ensName, "keywords"),
+        ENSInstance.getText.batch(ensName, "com.discord"),
+        ENSInstance.getText.batch(ensName, "com.github"),
+        ENSInstance.getText.batch(ensName, "com.reddit"),
+        ENSInstance.getText.batch(ensName, "com.twitter"),
+        ENSInstance.getText.batch(ensName, "org.telegram")
+      );
+      setEnsTextRecord({
+        email: ensTextRecord[0],
+        url: ensTextRecord[1],
+        avatar: ensTextRecord[2],
+        description: ensTextRecord[3],
+        notice: ensTextRecord[4],
+        keywords: ensTextRecord[5],
+        discord: ensTextRecord[6],
+        github: ensTextRecord[7],
+        reddit: ensTextRecord[8],
+        twitter: ensTextRecord[9],
+        telegram: ensTextRecord[10],
+      });
+      console.log(ensTextRecord);
+    }
+
     return ensName;
   };
 
