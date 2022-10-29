@@ -119,6 +119,8 @@ export const Web3AuthProvider = ({ children }) => {
    */
   const initWeb3Auth = async () => {
     try {
+      console.log(process.env.REACT_APP_WEB3AUTH_CLIENT_ID);
+      console.log(CHAIN_CONFIGS[chain][process.env.REACT_APP_NETWORK]);
       const web3Auth = new Web3Auth({
         clientId: process.env.REACT_APP_WEB3AUTH_CLIENT_ID,
         chainConfig: CHAIN_CONFIGS[chain][process.env.REACT_APP_NETWORK],
