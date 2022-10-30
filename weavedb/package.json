@@ -38,7 +38,8 @@
     "warp-contracts": "1.1.14",
     "wasmbuilder": "^0.0.16",
     "wasmcurves": "^0.2.0",
-    "weavedb-base": "^0.5.5"
+    "weavedb-base": "^0.5.5",
+    "weavedb-sdk": "^0.5.5"
   },
   "engines": {
     "node": "16"
