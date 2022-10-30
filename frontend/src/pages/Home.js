@@ -4,6 +4,8 @@ import ConnectWalletButton from "../components/ConnectWalletButton";
 import DisconnectWalletButton from "../components/DisconnectWalletButton";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "../components/Loading";
+import DomainForm from "../components/DomainForm";
+import ProfileForm from "../components/ProfileForm";
 
 const Home = () => {
   const { provider, walletAddress, ensName, ensTextRecord } = useWeb3Auth();
@@ -15,6 +17,7 @@ const Home = () => {
           {ensName !== null ? (
             <>
               <Box>wallet address: {walletAddress}</Box>
+              <DomainForm />
               <Box>ENS domain: {ensName}</Box>
               <Box>email: {ensTextRecord.email}</Box>
               <Box>url: {ensTextRecord.url}</Box>
@@ -27,6 +30,7 @@ const Home = () => {
               <Box>reddit: {ensTextRecord.reddit}</Box>
               <Box>twitter: {ensTextRecord.twitter}</Box>
               <Box>telegram: {ensTextRecord.telegram}</Box>
+              <ProfileForm />
             </>
           ) : (
             <>
