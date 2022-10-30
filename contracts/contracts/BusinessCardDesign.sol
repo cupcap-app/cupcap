@@ -17,10 +17,13 @@ contract BusinessCardDeign is
 {
     using Counters for Counters.Counter;
 
+    // BusinessCardDesignのトークンIDを保有し、現在使用しているデザインを表す
+    mapping(address => uint256) _accountToDesignID;
+
     Counters.Counter private _designIDs;
 
     modifier designExists(uint256 designID) {
-        require(designID < _designIDs.current(), "design is not registered");
+        require(designID <= _designIDs.current(), "design is not registered");
         _;
     }
 
@@ -38,6 +41,10 @@ contract BusinessCardDeign is
         returns (bool)
     {
         return balanceOf(account, cardDesignID) > 0;
+    }
+
+    function designID(address author) public view override returns (uint256) {
+        return _accountToDesignID[author];
     }
 
     function uri(uint256 tokenID)
@@ -64,6 +71,15 @@ contract BusinessCardDeign is
         return newDesignID;
     }
 
+    function setDesignID(uint256 designID) external override {
+        require(
+            hasCardDesign(designID, msg.sender),
+            "account doesn't have the design"
+        );
+
+        _accountToDesignID[msg.sender] = designID;
+    }
+
     function mint(
         address to,
         uint256 designID,
@@ -76,11 +92,38 @@ contract BusinessCardDeign is
     // TODO: batch mint
 
     // private function
+    // override
+    function _beforeTokenTransfer(
+        address _operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory _data
+    ) internal override {
+        uint256 currentSenderDesignID = _accountToDesignID[from];
+
+        for (uint256 index = 0; index < ids.length; index++) {
+            uint256 id = ids[index];
+
+            if (id != currentSenderDesignID) {
+                continue;
+            }
+
+            // 現在選択中のデザイントークンを送信する際に0にならないようにする
+            require(
+                balanceOf(from, id) - amounts[index] > 0,
+                "can't send all of selected design tokens"
+            );
+        }
+    }
+
     function _getNewDesignID() private returns (uint256) {
         uint256 newDesignID = _designIDs.current();
 
         _designIDs.increment();
 
-        return newDesignID;
+        // 1-indexed
+        return newDesignID + 1;
     }
 }

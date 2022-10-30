@@ -10,17 +10,11 @@ interface IBusinessCard is IERC1155, IERC1155MetadataURI {
     // アカウントの名刺IDを返す
     function tokenID(address author) external view returns (uint256);
 
-    // アカウントが現在使用しているデザインIDを返す
-    function designID(address author) external view returns (uint256);
-
     // external functions
     // プロフィール情報のリソースを保存している場所をセットする
     // ipfs://...
     // ens://...など
     function setProfileResource(string memory resourceURI) external;
-
-    // アカウントが使用したいデザインIDを指定する
-    function setDesignID(uint256 designID) external;
 
     // 名刺を作成する
     function mint(address to) external returns (uint256);

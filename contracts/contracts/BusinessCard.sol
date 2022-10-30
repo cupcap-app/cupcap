@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./IBusinessCard.sol";
-import "./IBusinessCardDesign.sol";
 
 // ERC1155 Soul Bound Semi Fungible Token
 contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
@@ -19,26 +18,15 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
     // １つのアカウントは単一のトークンIDを持つ
     mapping(address => uint256) _accountToTokenID;
 
-    // BusinessCardDesignのトークンIDを保有し、現在使用しているデザインを表す
-    mapping(address => uint256) _accountToDesignID;
-
-    IBusinessCardDesign _businessCardDesign;
-
-    constructor(IBusinessCardDesign bizCardDesign) ERC1155("") {
+    constructor() ERC1155("") {
         // プロフィールの保存場所がENSとarweaveの2通り以上があるため
         // URIの共通なプレフィックは指定できない
         _setBaseURI("");
-
-        _businessCardDesign = bizCardDesign;
     }
 
     // view functions
     function tokenID(address author) public view override returns (uint256) {
         return _accountToTokenID[author];
-    }
-
-    function designID(address author) public view override returns (uint256) {
-        return _accountToDesignID[author];
     }
 
     function uri(uint256 tokenID)
@@ -56,16 +44,6 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
         uint256 tokenID = _obtainTokenID(msg.sender);
 
         _setURI(tokenID, resourceURI);
-    }
-
-    // TODO: 保有数が0になった場合にどうリセットするか
-    function setDesignID(uint256 designID) external override {
-        require(
-            _businessCardDesign.hasCardDesign(designID, msg.sender),
-            "account doesn't have the design"
-        );
-
-        _accountToDesignID[msg.sender] = designID;
     }
 
     function mint(address to) external override returns (uint256) {
