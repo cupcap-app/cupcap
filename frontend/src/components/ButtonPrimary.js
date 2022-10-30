@@ -6,6 +6,7 @@ const ButtonPrimary = ({ text, onClickHandler }) => {
       variant="contained"
       onClick={onClickHandler}
       sx={{
+        backgroundColor: "#251E2F",
         height: 40,
         width: "70%",
         maxWidth: 300,
@@ -15,6 +16,7 @@ const ButtonPrimary = ({ text, onClickHandler }) => {
         my: 2,
         boxShadow: 5,
         textTransform: "none",
+        opacity: 0.7,
       }}
     >
       {text}
