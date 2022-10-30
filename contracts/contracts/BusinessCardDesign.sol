@@ -111,7 +111,12 @@ contract BusinessCardDeign is
     }
 
     // アカウントが使用するデザインIDを指定する
-    function setDesignID(address to, uint256 designID) external override {
+    function setDesignID(address to, uint256 designID)
+        external
+        override
+        onlyOwner
+        designExists(designID)
+    {
         require(
             hasCardDesign(designID, to),
             ERROR_ACCOUNT_DOES_NOT_HAVE_DESIGN

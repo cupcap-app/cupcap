@@ -19,4 +19,7 @@ interface IEventNFT is IERC721, IERC721Metadata {
         uint256 eventID, // イベントID
         address account // 参加登録をするアカウント
     ) external;
+
+    // イベントに参加する
+    function attendEvent(uint256 eventID, address account) external;
 }

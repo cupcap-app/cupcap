@@ -127,6 +127,7 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
     // イベントに参加する
     function attendEvent(uint256 eventID, address account)
         external
+        override
         onlyOwner
         eventExists(eventID)
     {

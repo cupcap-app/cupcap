@@ -3,26 +3,26 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./IEventNFT.sol";
 import "./POAP.sol";
 import "./IBusinessCardDesign.sol";
 import "./IBusinessCard.sol";
 
 contract CupCap is Ownable, Pausable {
+    using ECDSA for bytes32;
+
     // references
     IEventNFT public _eventNFT;
-    IPOAP public _poap;
     IBusinessCardDesign public _businessCardDesign;
     IBusinessCard public _businessCard;
 
     constructor(
         IEventNFT eventNFT,
-        IPOAP poap,
         IBusinessCardDesign businessCardDesign,
         IBusinessCard businessCard
     ) {
         _eventNFT = eventNFT;
-        _poap = poap;
         _businessCardDesign = businessCardDesign;
         _businessCard = businessCard;
     }
@@ -66,6 +66,7 @@ contract CupCap is Ownable, Pausable {
     }
 
     // 主催者が任意のアドレスをイベントに参加登録させる
+    // XXX: 署名必要にするか？
     function participateEventByHost(uint256 eventID, address account)
         external
         whenNotPaused
@@ -76,6 +77,24 @@ contract CupCap is Ownable, Pausable {
         );
 
         _eventNFT.participateEvent(eventID, account);
+    }
+
+    // イベントに参加する
+    function attendEvent(uint256 eventID) external whenNotPaused {
+        _eventNFT.attendEvent(eventID, msg.sender);
+    }
+
+    // 主催者が任意のアドレスをイベントを参加させる
+    function attendEventByHost(uint256 eventID, address account)
+        external
+        whenNotPaused
+    {
+        require(
+            _eventNFT.ownerOf(eventID) == msg.sender,
+            "only event host can call"
+        );
+
+        _eventNFT.attendEvent(eventID, account);
     }
 
     // 新しい名刺デザインを作成する
@@ -117,5 +136,35 @@ contract CupCap is Ownable, Pausable {
     // 名刺を送る
     function sendBusinessCard(address to) external whenNotPaused {
         _businessCard.mint(msg.sender, to);
+    }
+
+    // 名刺を受け取る (受け取り主がガスコストを支払う)
+    function takeBusinessCard(address from, bytes memory signature)
+        external
+        whenNotPaused
+    {
+        // XXX: 署名対象の内容が十分か
+        // 複数個の名刺は作成できないため、ナンスはいらない...?
+        bytes memory message = abi.encodePacked(
+            "[",
+            from,
+            ",",
+            msg.sender,
+            "]"
+        );
+
+        require(_verify(message, signature, from), "signature is invalid");
+
+        _businessCard.mint(from, msg.sender);
+    }
+
+    function _verify(
+        bytes memory data,
+        bytes memory signature,
+        address account
+    ) internal pure returns (bool) {
+        return
+            keccak256(data).toEthSignedMessageHash().recover(signature) ==
+            account;
     }
 }
