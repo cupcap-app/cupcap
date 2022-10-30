@@ -5,9 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IPOAP.sol";
 
 // ERC1155
-// TODO: make it to SBT
 contract POAP is IPOAP, ERC1155, Ownable {
-    // TODO: URI
     constructor() ERC1155("") {}
 
     mapping(uint256 => uint256) _lastPOAPID;
