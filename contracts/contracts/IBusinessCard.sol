@@ -14,8 +14,9 @@ interface IBusinessCard is IERC1155, IERC1155MetadataURI {
     // プロフィール情報のリソースを保存している場所をセットする
     // ipfs://...
     // ens://...など
-    function setProfileResource(string memory resourceURI) external;
+    function setProfileResource(address account, string memory resourceURI)
+        external;
 
     // 名刺を作成する
-    function mint(address to) external returns (uint256);
+    function mint(address from, address to) external;
 }

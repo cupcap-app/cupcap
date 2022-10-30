@@ -17,13 +17,30 @@ contract BusinessCardDeign is
 {
     using Counters for Counters.Counter;
 
+    // Events
+    event DesignCreated(uint256 designID, string uri);
+    event NewTokenIssued(
+        uint256 indexed designID,
+        address indexed to,
+        uint256 amount
+    );
+    event DesignSelected(address indexed account, uint256 designID);
+
+    // Error messages
+    string public constant ERROR_DESIGN_NOT_FOUND = "design not found";
+    string public constant ERROR_ACCOUNT_DOES_NOT_HAVE_DESIGN =
+        "account doesn't have the design";
+    string public constant ERROR_SELL_ALL_SELECTED_DESIGN =
+        "can't send all of selected design tokens";
+
+    // Fields
     // BusinessCardDesignのトークンIDを保有し、現在使用しているデザインを表す
     mapping(address => uint256) _accountToDesignID;
 
     Counters.Counter private _designIDs;
 
     modifier designExists(uint256 designID) {
-        require(designID <= _designIDs.current(), "design is not registered");
+        require(designID <= _designIDs.current(), ERROR_DESIGN_NOT_FOUND);
         _;
     }
 
@@ -34,6 +51,7 @@ contract BusinessCardDeign is
     }
 
     // view functions
+    // アカウントが指定のデザイントークンを持っているか返す
     function hasCardDesign(uint256 cardDesignID, address account)
         public
         view
@@ -43,10 +61,17 @@ contract BusinessCardDeign is
         return balanceOf(account, cardDesignID) > 0;
     }
 
-    function designID(address author) public view override returns (uint256) {
+    // アカウントが選択しているデザインIDを返す
+    function selectedDesignID(address author)
+        public
+        view
+        override
+        returns (uint256)
+    {
         return _accountToDesignID[author];
     }
 
+    // デザインのURIを返す
     function uri(uint256 tokenID)
         public
         view
@@ -58,41 +83,50 @@ contract BusinessCardDeign is
     }
 
     // external functions
+    // 新しいデザインを登録する
     function registerResource(string memory tokenURI)
         external
         override
         onlyOwner
         returns (uint256)
     {
-        uint256 newDesignID = _getNewDesignID();
+        uint256 newDesignID = _getNextDesignID();
 
         super._setURI(newDesignID, tokenURI);
+
+        emit DesignCreated(newDesignID, super.uri(newDesignID));
 
         return newDesignID;
     }
 
-    function setDesignID(uint256 designID) external override {
-        require(
-            hasCardDesign(designID, msg.sender),
-            "account doesn't have the design"
-        );
-
-        _accountToDesignID[msg.sender] = designID;
-    }
-
+    // デザインsemi-fungibleトークンを新規発行する
     function mint(
         address to,
         uint256 designID,
         uint256 number
-    ) external override onlyOwner designExists(designID) returns (uint256) {
-        // XXX: Check the usecase of data argument
+    ) external override onlyOwner designExists(designID) {
         _mint(to, designID, number, "");
+
+        emit NewTokenIssued(designID, to, number);
+    }
+
+    // アカウントが使用するデザインIDを指定する
+    function setDesignID(address to, uint256 designID) external override {
+        require(
+            hasCardDesign(designID, to),
+            ERROR_ACCOUNT_DOES_NOT_HAVE_DESIGN
+        );
+
+        _accountToDesignID[to] = designID;
+
+        emit DesignSelected(to, designID);
     }
 
     // TODO: batch mint
 
     // private function
-    // override
+    // トークンを送金できるかチェックする
+    // 現在使用しているデザインのトークンは0にならないようにする
     function _beforeTokenTransfer(
         address _operator,
         address from,
@@ -113,17 +147,15 @@ contract BusinessCardDeign is
             // 現在選択中のデザイントークンを送信する際に0にならないようにする
             require(
                 balanceOf(from, id) - amounts[index] > 0,
-                "can't send all of selected design tokens"
+                ERROR_SELL_ALL_SELECTED_DESIGN
             );
         }
     }
 
-    function _getNewDesignID() private returns (uint256) {
-        uint256 newDesignID = _designIDs.current();
-
+    function _getNextDesignID() private returns (uint256) {
+        // 1 based index
         _designIDs.increment();
 
-        // 1-indexed
-        return newDesignID + 1;
+        return _designIDs.current();
     }
 }

@@ -12,6 +12,13 @@ import "./IBusinessCard.sol";
 contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
     using Counters for Counters.Counter;
 
+    // Errors
+    string public constant ERROR_TRANSFER = "Can't transfer token";
+    string public constant ERROR_BUSINESS_CARD_SENT_ALREADY =
+        "recipient has token already";
+    string public constant ERROR_SENDING_MULTIPLE_BUSINESS_CARDS =
+        "2 of more tokens of a type can't be sent";
+
     Counters.Counter private _tokenIds;
 
     // アカウントごとのトークンIDを保有するマッピング
@@ -25,10 +32,12 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
     }
 
     // view functions
+    // アカウントの名刺IDを返す
     function tokenID(address author) public view override returns (uint256) {
         return _accountToTokenID[author];
     }
 
+    // アカウントの名刺URIを返す
     function uri(uint256 tokenID)
         public
         view
@@ -40,14 +49,19 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
     }
 
     // external functions
-    function setProfileResource(string memory resourceURI) external override {
-        uint256 tokenID = _obtainTokenID(msg.sender);
+    // アカウントのリソースURIをセットする
+    function setProfileResource(address account, string memory resourceURI)
+        external
+        override
+    {
+        uint256 tokenID = _obtainTokenID(account);
 
         _setURI(tokenID, resourceURI);
     }
 
-    function mint(address to) external override returns (uint256) {
-        uint256 tokenID = _obtainTokenID(msg.sender);
+    // アカウントの名刺を新たに発行する
+    function mint(address from, address to) external override {
+        uint256 tokenID = _obtainTokenID(from);
 
         _mint(to, tokenID, 1, "");
     }
@@ -63,25 +77,19 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
         bytes memory _data
     ) internal override {
         // (1) SBTにするための制約, mint/burnしかできないようにする
-        require(
-            from == address(0) || to == address(0),
-            "only mint/burn is allowed"
-        );
+        require(from == address(0) || to == address(0), ERROR_TRANSFER);
 
         // (2) 受け取り主が名刺を既に保有しているかチェックする
         for (uint256 index = 0; index < ids.length; index++) {
             require(
                 balanceOf(to, ids[index]) == 0,
-                "recipient has token already"
+                ERROR_BUSINESS_CARD_SENT_ALREADY
             );
         }
 
         // (3) 2個以上同じトークンを送信(mint/burn)していないかチェック
         for (uint256 index = 0; index < amounts.length; index++) {
-            require(
-                amounts[index] <= 1,
-                "2 of more tokens of a type can't be sent"
-            );
+            require(amounts[index] <= 1, ERROR_SENDING_MULTIPLE_BUSINESS_CARDS);
         }
     }
 
@@ -93,13 +101,12 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
             return _accountToTokenID[author];
         }
 
-        uint256 tokenID = _tokenIds.current();
-
+        // 1 based index
         _tokenIds.increment();
 
         // 1-indexed
-        _accountToTokenID[author] = tokenID + 1;
+        _accountToTokenID[author] = _tokenIds.current();
 
-        return tokenID;
+        return _accountToTokenID[author];
     }
 }

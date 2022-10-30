@@ -14,7 +14,7 @@ interface IBusinessCardDesign is IERC1155, IERC1155MetadataURI {
         returns (bool);
 
     // アカウントが現在使用しているデザインIDを返す
-    function designID(address author) external view returns (uint256);
+    function selectedDesignID(address author) external view returns (uint256);
 
     // external functions
     // 新規のデザインを登録する
@@ -22,14 +22,14 @@ interface IBusinessCardDesign is IERC1155, IERC1155MetadataURI {
         external
         returns (uint256);
 
-    // アカウントが使用したいデザインIDを指定する
-    function setDesignID(uint256 designID) external;
-
     // デザインセミファンジブルトークンを作成する
     // 事前にデザインが登録されている必要がある
     function mint(
         address to,
         uint256 designID,
         uint256 number
-    ) external returns (uint256);
+    ) external;
+
+    // アカウントが使用したいデザインIDを指定する
+    function setDesignID(address to, uint256 designID) external;
 }
