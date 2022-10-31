@@ -7,7 +7,7 @@ import "./IPOAP.sol";
 // ERC1155
 contract POAP is IPOAP, ERC1155, Ownable {
     // Events
-    event POAPIssued(uint256 indexed eventID, address indexed account);
+    event Issued(uint256 indexed eventID, address indexed account, uint256 index);
 
     // Constants
     string public constant ERROR_TRANSFER_POAP = "transfer POAP is not allowed";
@@ -57,7 +57,7 @@ contract POAP is IPOAP, ERC1155, Ownable {
 
         _poapIDs[eventID][to] = poapID;
 
-        emit POAPIssued(eventID, to);
+        emit Issued(eventID, to, poapID);
 
         return poapID;
     }

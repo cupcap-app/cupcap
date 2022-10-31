@@ -1,0 +1,23 @@
+type Event @entity {
+  id: String!
+  createdBy: Bytes!
+  startedAt: BigInt!
+  endedAt: BigInt
+  limitOfParticipants: BigInt!
+  numberOfParticipants: BigInt!
+  numberOfAttendance: BigInt!
+}
+
+type Participant @entity {
+  id: Bytes!
+  eventID: BigInt!
+  status: String!
+  poapID: BigInt
+}
+
+type POAP @entity {
+  id: String!
+  eventID: BigInt!
+  index: BigInt!
+  holder: Bytes!
+}

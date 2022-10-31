@@ -1,0 +1,47 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: EventNFT
+    network: hardhat
+    source:
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      abi: EventNFT
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Event
+        - Participant
+      abis:
+        - name: EventNFT
+          file: ./abis/EventNFT.sol/EventNFT.json
+      file: ./src/event_nft.ts
+      eventHandlers:
+        - event: EventCreated(uint256,indexed address,uint256,uint256,uint256)
+          handler: handleEventCreated
+        - event: Participated(indexed uint256,indexed address,uint256,uint256)
+          handler: handleParticipated
+        - event: Attended(indexed uint256,indexed address,uint256,uint256,uint256)
+          handler: handleAttended
+  - kind: ethereum
+    name: POAP
+    network: hardhat
+    source:
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      abi: POAP
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - POAP
+      abis:
+        - name: POAP
+          file: ./abis/POAP.sol/POAP.json
+      file: ./src/poap.ts
+      eventHandlers:
+        - event: Issued(indexed uint256,indexed address,uint256)
+          handler: handleIssued

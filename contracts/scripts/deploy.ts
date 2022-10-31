@@ -20,16 +20,16 @@ async function main() {
     `deployed EventNFT address: ${eventNFT.address}, txHash: ${eventNFT.deployTransaction.hash}\n`
   );
 
-  // BusinessCardDeign
-  console.log("deploying BusinessCardDeign...");
-  const businessCardDeignFactory = await ethers.getContractFactory(
-    "BusinessCardDeign"
+  // BusinessCardDesign
+  console.log("deploying BusinessCardDesign...");
+  const BusinessCardDesignFactory = await ethers.getContractFactory(
+    "BusinessCardDesign"
   );
-  const businessCardDeign = await businessCardDeignFactory.deploy(
+  const businessCardDesign = await BusinessCardDesignFactory.deploy(
     STORAGE_BASE_URI
   );
   console.log(
-    `deployed BusinessCardDeign address: ${businessCardDeign.address}, txHash: ${businessCardDeign.deployTransaction.hash}\n`
+    `deployed BusinessCardDesign address: ${businessCardDesign.address}, txHash: ${businessCardDesign.deployTransaction.hash}\n`
   );
 
   // BusinessCard
@@ -45,7 +45,7 @@ async function main() {
   const cupCapFactory = await ethers.getContractFactory("CupCap");
   const cupCap = await cupCapFactory.deploy(
     eventNFT.address,
-    businessCardDeign.address,
+    businessCardDesign.address,
     businessCard.address
   );
   console.log(
@@ -54,17 +54,28 @@ async function main() {
 
   // Move Owner
   console.log("Moving ownerships to CupCap\n");
-  await poap.transferOwnership(cupCap.address);
+  await poap.transferOwnership(eventNFT.address);
   await eventNFT.transferOwnership(cupCap.address);
-  await businessCardDeign.transferOwnership(cupCap.address);
+  await businessCardDesign.transferOwnership(cupCap.address);
   await businessCard.transferOwnership(cupCap.address);
 
   console.log("Setup is Done!!");
   console.log(`POAP: ${poap.address}`);
   console.log(`EventNFT: ${eventNFT.address}`);
-  console.log(`BusinessCardDeign: ${businessCardDeign.address}`);
+  console.log(`BusinessCardDesign: ${businessCardDesign.address}`);
   console.log(`BusinessCard: ${businessCard.address}`);
   console.log(`CupCap: ${cupCap.address}`);
+
+  console.log("");
+  console.log("Please paste the following data to .env");
+
+  console.log("");
+  console.log(`CUPCAP_ADDRESS=${cupCap.address}`);
+  console.log(`EVENT_NFT_ADDRESS=${eventNFT.address}`);
+  console.log(`POAP_ADDRESS=${poap.address}`);
+  console.log(`BUSINESS_CARD_DESIGN_ADDRESS=${businessCardDesign.address}`);
+  console.log(`BUSINESS_CARD_ADDRESS=${businessCard.address}`);
+  console.log("");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

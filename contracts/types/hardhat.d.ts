@@ -13,15 +13,213 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "Lock",
+      name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Lock__factory>;
+    ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
+      name: "Pausable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Pausable__factory>;
+    getContractFactory(
+      name: "ERC1155",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC1155__factory>;
+    getContractFactory(
+      name: "ERC1155URIStorage",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC1155URIStorage__factory>;
+    getContractFactory(
+      name: "IERC1155MetadataURI",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC1155MetadataURI__factory>;
+    getContractFactory(
+      name: "IERC1155",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC1155__factory>;
+    getContractFactory(
+      name: "IERC1155Receiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC1155Receiver__factory>;
+    getContractFactory(
+      name: "ERC721",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC721__factory>;
+    getContractFactory(
+      name: "ERC721URIStorage",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC721URIStorage__factory>;
+    getContractFactory(
+      name: "IERC721Metadata",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC721Metadata__factory>;
+    getContractFactory(
+      name: "IERC721",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC721__factory>;
+    getContractFactory(
+      name: "IERC721Receiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC721Receiver__factory>;
+    getContractFactory(
+      name: "ERC165",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC165__factory>;
+    getContractFactory(
+      name: "IERC165",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC165__factory>;
+    getContractFactory(
+      name: "BusinessCard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BusinessCard__factory>;
+    getContractFactory(
+      name: "BusinessCardDesign",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BusinessCardDesign__factory>;
+    getContractFactory(
+      name: "CupCap",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CupCap__factory>;
+    getContractFactory(
+      name: "EventNFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.EventNFT__factory>;
+    getContractFactory(
+      name: "IBusinessCard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBusinessCard__factory>;
+    getContractFactory(
+      name: "IBusinessCardDesign",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBusinessCardDesign__factory>;
+    getContractFactory(
+      name: "IEventNFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IEventNFT__factory>;
+    getContractFactory(
+      name: "IPOAP",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IPOAP__factory>;
+    getContractFactory(
+      name: "POAP",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.POAP__factory>;
 
     getContractAt(
-      name: "Lock",
+      name: "Ownable",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.Lock>;
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "Pausable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Pausable>;
+    getContractAt(
+      name: "ERC1155",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC1155>;
+    getContractAt(
+      name: "ERC1155URIStorage",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC1155URIStorage>;
+    getContractAt(
+      name: "IERC1155MetadataURI",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC1155MetadataURI>;
+    getContractAt(
+      name: "IERC1155",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC1155>;
+    getContractAt(
+      name: "IERC1155Receiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC1155Receiver>;
+    getContractAt(
+      name: "ERC721",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC721>;
+    getContractAt(
+      name: "ERC721URIStorage",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC721URIStorage>;
+    getContractAt(
+      name: "IERC721Metadata",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721Metadata>;
+    getContractAt(
+      name: "IERC721",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721>;
+    getContractAt(
+      name: "IERC721Receiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721Receiver>;
+    getContractAt(
+      name: "ERC165",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC165>;
+    getContractAt(
+      name: "IERC165",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC165>;
+    getContractAt(
+      name: "BusinessCard",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BusinessCard>;
+    getContractAt(
+      name: "BusinessCardDesign",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BusinessCardDesign>;
+    getContractAt(
+      name: "CupCap",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CupCap>;
+    getContractAt(
+      name: "EventNFT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EventNFT>;
+    getContractAt(
+      name: "IBusinessCard",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IBusinessCard>;
+    getContractAt(
+      name: "IBusinessCardDesign",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IBusinessCardDesign>;
+    getContractAt(
+      name: "IEventNFT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IEventNFT>;
+    getContractAt(
+      name: "IPOAP",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IPOAP>;
+    getContractAt(
+      name: "POAP",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.POAP>;
 
     // default types
     getContractFactory(

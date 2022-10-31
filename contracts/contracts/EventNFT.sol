@@ -42,12 +42,19 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         uint256 limitOfParticipants
     );
 
-    event Participated(uint256 indexed eventID, address indexed participant);
+    event Participated(
+        uint256 indexed eventID,
+        address indexed participant,
+        uint256 numberOfParticipants,
+        uint256 numberOfAttendance
+    );
 
     event Attended(
         uint256 indexed eventID,
         address indexed participant,
-        uint256 poapID
+        uint256 poapID,
+        uint256 numberOfParticipants,
+        uint256 numberOfAttendance
     );
 
     // Constants
@@ -136,11 +143,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
 
     // Private functions
     function _getNewTokenID() private returns (uint256) {
-        uint256 newItemID = _tokenIds.current();
-
+        // 1 based index
         _tokenIds.increment();
 
-        return newItemID;
+        return _tokenIds.current();
     }
 
     function _burn(uint256 tokenID)
@@ -205,7 +211,7 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         Event storage ev = _events[eventID];
 
         ParticipationStatus currentStatus = _participations[eventID][account];
-        // 参加登録済みは参加した場合は新たに参加できない
+        // 参加登録済みや参加済みは新たに参加できない
         require(
             currentStatus != ParticipationStatus.Participated &&
                 currentStatus != ParticipationStatus.Attended,
@@ -213,7 +219,7 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         );
 
         // イベント終了前かチェック
-        require(block.timestamp <= ev.endedAt, ERROR_EVENT_ENDED_ALREADY);
+        require(ev.endedAt == 0  || block.timestamp <= ev.endedAt, ERROR_EVENT_ENDED_ALREADY);
 
         // アカウントを追加した場合の合計参加予定/参加者数
         uint256 newTotal = ev.numberOfParticipants + ev.numberOfAttendance + 1;
@@ -222,22 +228,33 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
             ERROR_REACH_PARTICIPANTS_LIMIT
         );
 
-        emit Participated(eventID, account);
+        uint256 newNumberOfParticipants = ev.numberOfParticipants + 1;
+        uint256 newNumberOfAttendance = ev.numberOfAttendance;
+        ParticipationStatus newStatus =  _participations[eventID][account];
+
+        // 参加登録　
+        newStatus = ParticipationStatus.Participated;
+        emit Participated(
+            eventID,
+            account,
+            newNumberOfParticipants,
+            newNumberOfAttendance
+        );
 
         if (block.timestamp >= ev.startedAt) {
             // イベントが既に開始している場合は、参加済みとする
-            ev.numberOfAttendance += 1;
-            _participations[eventID][account] = ParticipationStatus.Attended;
+            newNumberOfParticipants -= 1;
+            newNumberOfAttendance += 1;
+            newStatus = ParticipationStatus.Attended;
 
             uint256 poapID = _issuePOAP(eventID, account);
 
-            emit Attended(eventID, account, poapID);
-        } else {
-            // 参加予定者としてカウント
-            ev.numberOfParticipants += 1;
-            _participations[eventID][account] = ParticipationStatus
-                .Participated;
+            emit Attended(eventID, account, poapID, newNumberOfParticipants, newNumberOfAttendance);
         }
+
+        ev.numberOfParticipants = newNumberOfParticipants;
+        ev.numberOfAttendance = newNumberOfAttendance;
+        _participations[eventID][account] = newStatus;
     }
 
     // イベントに参加する
@@ -259,7 +276,7 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
 
         uint256 poapID = _issuePOAP(eventID, account);
 
-        emit Attended(eventID, account, poapID);
+        emit Attended(eventID, account, poapID, ev.numberOfParticipants, ev.numberOfAttendance);
     }
 
     function _issuePOAP(uint256 eventID, address account)

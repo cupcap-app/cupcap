@@ -53,6 +53,7 @@ contract CupCap is Ownable, Pausable {
             endedAt
         );
 
+        // TODO: なぜか動かない
         if (shouldHostInclude) {
             _eventNFT.participateEvent(eventID, host);
         }
