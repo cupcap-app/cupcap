@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./IBusinessCardDesign.sol";
 
 // Transferable ERC1155 Semi-fungible
-contract BusinessCardDeign is
+contract BusinessCardDesign is
     IBusinessCardDesign,
     ERC1155,
     ERC1155URIStorage,
