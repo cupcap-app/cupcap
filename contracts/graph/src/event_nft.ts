@@ -10,7 +10,7 @@ const STATUS_PARTICIPATED = "participated";
 const STATUS_ATTENDED = "attended";
 
 function getEventEntity(eventIDNumber: BigInt): Event {
-  const id = eventIDNumber.toString();
+  const id = eventIDNumber.toHex();
 
   const event = Event.load(id);
   if (event) {
@@ -20,13 +20,15 @@ function getEventEntity(eventIDNumber: BigInt): Event {
   return new Event(id);
 }
 
-function getParticipantEntity(address: Address): Participant {
-  const participant = Participant.load(address);
+function getParticipantEntity(eventID: BigInt, address: Address): Participant {
+  const id = `${eventID.toHex()}_${address.toHex()}`;
+
+  const participant = Participant.load(id);
   if (participant) {
     return participant;
   }
 
-  return new Participant(address);
+  return new Participant(id);
 }
 
 export function handleEventCreated(e: EventCreated): void {
@@ -49,8 +51,12 @@ export function handleParticipated(e: Participated): void {
   event.save();
 
   // Create Participant
-  const participant = getParticipantEntity(e.params.participant);
+  const participant = getParticipantEntity(
+    e.params.eventID,
+    e.params.participant
+  );
   participant.eventID = e.params.eventID;
+  participant.account = e.params.participant;
   participant.status = STATUS_PARTICIPATED;
 
   participant.save();
@@ -64,7 +70,10 @@ export function handleAttended(e: Attended): void {
 
   event.save();
 
-  const participant = getParticipantEntity(e.params.participant);
+  const participant = getParticipantEntity(
+    e.params.eventID,
+    e.params.participant
+  );
   participant.status = STATUS_ATTENDED;
   participant.poapID = e.params.poapID;
 

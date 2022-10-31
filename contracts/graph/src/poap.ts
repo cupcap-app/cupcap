@@ -3,7 +3,7 @@ import { Issued } from "../generated/POAP/POAP";
 import { POAP } from "../generated/schema";
 
 function getPOAPEntiry(eventID: BigInt, poapIndex: BigInt): POAP {
-  const id = `${eventID.toString()}_${poapIndex.toString()}`;
+  const id = `${eventID.toHex()}_${poapIndex.toHex()}`;
 
   const poap = POAP.load(id);
   if (poap) {

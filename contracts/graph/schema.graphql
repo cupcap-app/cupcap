@@ -9,8 +9,9 @@ type Event @entity {
 }
 
 type Participant @entity {
-  id: Bytes!
+  id: String!
   eventID: BigInt!
+  account: Bytes!
   status: String!
   poapID: BigInt
 }
@@ -20,4 +21,23 @@ type POAP @entity {
   eventID: BigInt!
   index: BigInt!
   holder: Bytes!
+}
+
+type BusinessCardDesign @entity(immutable: true) {
+  id: String!
+  uri: String!
+}
+
+type BusinessCardDesignBalance @entity {
+  id: String!
+  token: BigInt!
+  holder: Bytes!
+  amount: BigInt!
+}
+
+type BusinessCard @entity(immutable: true) {
+  id: String!
+  from: Bytes!
+  to: Bytes!
+  tokenID: BigInt!
 }

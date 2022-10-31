@@ -16,7 +16,7 @@ contract BusinessCardDesign is
     Ownable
 {
     using Counters for Counters.Counter;
-
+             
     // Events
     event DesignCreated(uint256 designID, string uri);
     event NewTokenIssued(

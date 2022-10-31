@@ -13,7 +13,7 @@ async function main() {
     // 主催者のアドレス
     account.address,
     // イベント詳細が書かれたJSONが置いてあるURI
-    "ipfs://hoge",
+    "ipfs://event1",
     // 何人参加できるか
     10,
     // 開始時刻 (0の場合はブロック生成時間)

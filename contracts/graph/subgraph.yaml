@@ -45,3 +45,46 @@ dataSources:
       eventHandlers:
         - event: Issued(indexed uint256,indexed address,uint256)
           handler: handleIssued
+  - kind: ethereum
+    name: BusinessCardDesign
+    network: hardhat
+    source:
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      abi: BusinessCardDesign
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - BusinessCardDesign
+        - BusinessCardBalance
+      abis:
+        - name: BusinessCardDesign
+          file: ./abis/BusinessCardDesign.sol/BusinessCardDesign.json
+      file: ./src/business_card_design.ts
+      eventHandlers:
+        - event: DesignCreated(uint256,string)
+          handler: handleDesignCreated
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+  - kind: ethereum
+    name: BusinessCard
+    network: hardhat
+    source:
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      abi: BusinessCard
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - BusinessCard
+      abis:
+        - name: BusinessCard
+          file: ./abis/BusinessCard.sol/BusinessCard.json
+      file: ./src/business_card.ts
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
