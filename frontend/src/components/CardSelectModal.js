@@ -35,7 +35,7 @@ const CardSelectModal = ({ setDone }) => {
               backgroundColor: "rgba(217, 217, 217, 0.1)",
               border: 0,
               borderRadius: "15px",
-              backdropFilter: "blur(41.1333px)",
+              backdropFilter: "blur(20px)",
               boxShadow: 10,
               display: "block",
               m: "auto",
