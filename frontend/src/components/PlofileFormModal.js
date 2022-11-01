@@ -31,9 +31,9 @@ const PlofileFormModal = ({ setDone }) => {
     },
   });
 
-  const onSaveClick = () => {};
   const selectImage = () => {};
   const onSubmit = async (data) => {
+    // TODO weavedb保存
     console.log(data);
     await changeNetwork("ethereum");
     setDone(true);

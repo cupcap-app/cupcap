@@ -1,21 +1,26 @@
 import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
 import { Button, Box, TextField, Stack, Typography } from "@mui/material";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "./Loading";
 import ButtonPrimary from "./ButtonPrimary";
-import hologram_front from "../public/hologram_front.png";
-import hologram_back from "../public/hologram_back.png";
+import hologram_front from "../public/hologram_card_front.png";
+import hologram_back from "../public/hologram_card_back.png";
+import classic_front from "../public/classic_card_front.png";
+import classic_back from "../public/classic_card_back.png";
 
 /**
  * カード選択モーダル
  */
 const CardSelectModal = ({ setDone }) => {
   // web3auth
-  const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
+  const { provider } = useWeb3Auth();
   const [isLoading, setIsLoading] = useState(false);
 
   const settingDoneHandler = () => {
+    // TODO weavedbに保存
     setDone(true);
   };
 
@@ -50,29 +55,62 @@ const CardSelectModal = ({ setDone }) => {
                 <Typography>Choose your card design</Typography>
               </Box>
             </Box>
-            <Box
-              component="img"
-              sx={{
-                width: 300,
-                height: 180,
-                display: "block",
-                m: "auto",
-              }}
-              alt="hologram_front"
-              src={hologram_front}
-            />
-            <Box
-              component="img"
-              sx={{
-                width: 300,
-                height: 180,
-                display: "block",
-                m: "auto",
-                mb: 5,
-              }}
-              alt="hologram_back"
-              src={hologram_back}
-            />
+            {/* TODO コンポーネント化 */}
+            <Box sx={{ m: 3, mb: 8 }}>
+              <Slider dots infinite speed="500">
+                <Box>
+                  <Box
+                    component="img"
+                    sx={{
+                      width: 300,
+                      height: 180,
+                      display: "block",
+                      m: "auto",
+                    }}
+                    alt="hologram_front"
+                    src={hologram_front}
+                  />
+                  <Box
+                    component="img"
+                    sx={{
+                      width: 300,
+                      height: 180,
+                      display: "block",
+                      m: "auto",
+                      mb: 5,
+                    }}
+                    alt="hologram_back"
+                    src={hologram_back}
+                  />
+                </Box>
+                <Box>
+                  <Box
+                    component="img"
+                    sx={{
+                      width: 300,
+                      height: 180,
+                      display: "block",
+                      m: "auto",
+                    }}
+                    alt="classic_front"
+                    src={classic_front}
+                  />
+                  <Box
+                    component="img"
+                    sx={{
+                      width: 300,
+                      height: 180,
+                      display: "block",
+                      m: "auto",
+                      mb: 5,
+                    }}
+                    alt="classic_back"
+                    src={classic_back}
+                  />
+                </Box>
+              </Slider>
+            </Box>
+
             <ButtonPrimary text={"Done"} onClickHandler={settingDoneHandler} />
           </Box>
         </>
