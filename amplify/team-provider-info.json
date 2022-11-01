@@ -1,0 +1,31 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cupcap-dev-150454-authRole",
+      "UnauthRoleArn": "arn:aws:iam::851220355118:role/amplify-cupcap-dev-150454-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::851220355118:role/amplify-cupcap-dev-150454-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-cupcap-dev-150454-deployment",
+      "UnauthRoleName": "amplify-cupcap-dev-150454-unauthRole",
+      "StackName": "amplify-cupcap-dev-150454",
+      "StackId": "arn:aws:cloudformation:us-east-1:851220355118:stack/amplify-cupcap-dev-150454/0e695b90-5968-11ed-816e-0a12e9239045",
+      "AmplifyAppId": "d3bsh0x62cfwgj"
+    },
+    "categories": {
+      "function": {
+        "cupcapresourceuploader": {
+          "deploymentBucketName": "amplify-cupcap-dev-150454-deployment",
+          "s3Key": "amplify-builds/cupcapresourceuploader-534c544d7a67484a774f-build.zip",
+          "bucketName": "cupcap-keys",
+          "arweaveKeyFileName": "arweave-key.json"
+        }
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d3bsh0x62cfwgj",
+          "type": "cicd"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "arweave": "^1.11.6",
+    "aws-sdk": "^2.1244.0",
+    "lambda-multipart-parser": "^1.0.1"
+  }
+}
