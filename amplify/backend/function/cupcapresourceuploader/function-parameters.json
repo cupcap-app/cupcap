@@ -1,0 +1,13 @@
+{
+  "lambdaLayers": [],
+  "environmentVariableList": [
+    {
+      "cloudFormationParameterName": "bucketName",
+      "environmentVariableName": "BUCKET_NAME"
+    },
+    {
+      "cloudFormationParameterName": "arweaveKeyFileName",
+      "environmentVariableName": "ARWEAVE_KEY_FILE_NAME"
+    }
+  ]
+}

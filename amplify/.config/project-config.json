@@ -1,0 +1,17 @@
+{
+  "providers": [
+    "awscloudformation"
+  ],
+  "projectName": "cupcap",
+  "version": "3.1",
+  "frontend": "javascript",
+  "javascript": {
+    "framework": "react",
+    "config": {
+      "SourceDir": "frontend/src",
+      "DistributionDir": "frontend/build",
+      "BuildCommand": "cd frontend && npm run-script build",
+      "StartCommand": "cd frontend && npm run-script start"
+    }
+  }
+}
