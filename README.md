@@ -9,3 +9,5 @@ Lambdaに任意のデータをArweaveにアップロードするプロキシが�
 BUCKET_NAME=cupcap-keys
 ARWEAVE_KEY_FILE_NAME=arweave-key.json
 ```
+
+コードは`amplify/backend/function/cupcapresourceuploader`以下にある。コードのアップデートをするには`amplify push`をする。
