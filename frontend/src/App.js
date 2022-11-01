@@ -10,8 +10,8 @@ function App() {
       {/* <ScrollToTop /> */}
       {/* <Header /> */}
       <Routes>
-        <Route exact path="/" element={<Home />} />
-        <Route exact path="/map" element={<Map />} />
+        {/* <Route exact path="/" element={<Home />} /> */}
+        <Route exact path="/" element={<Map />} />
       </Routes>
       {/* <Footer /> */}
     </BrowserRouter>

@@ -9,7 +9,7 @@ import camera from "../public/camera.png";
 /**
  * プロフィール入力モーダル
  */
-const PlofileFormModal = ({}) => {
+const PlofileFormModal = ({ setDone }) => {
   // web3auth
   const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +22,7 @@ const PlofileFormModal = ({}) => {
       avatar: "",
       displayName: "",
       github: "",
-      twitter: ensTextRecord.twitter,
+      twitter: "",
       discord: "",
       telegram: "",
       email: "",
@@ -36,6 +36,7 @@ const PlofileFormModal = ({}) => {
   const onSubmit = async (data) => {
     console.log(data);
     await changeNetwork("ethereum");
+    setDone(true);
   };
 
   const validationRules = {
@@ -51,7 +52,7 @@ const PlofileFormModal = ({}) => {
           <Box
             sx={{
               width: "90%",
-              maxHeight: "90%",
+              height: "90%",
               backgroundColor: "rgba(217, 217, 217, 0.1)",
               border: 0,
               borderRadius: "15px",
