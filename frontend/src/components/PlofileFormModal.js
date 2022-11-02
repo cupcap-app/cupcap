@@ -11,7 +11,8 @@ import camera from "../public/camera.png";
  */
 const PlofileFormModal = ({ setDone }) => {
   // web3auth
-  const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
+  const { provider, ensTextRecord, changeNetwork, registerEnsName } =
+    useWeb3Auth();
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
@@ -32,11 +33,23 @@ const PlofileFormModal = ({ setDone }) => {
   });
 
   const selectImage = () => {};
-  const onSubmit = async (data) => {
-    // TODO weavedb保存
-    console.log(data);
-    await changeNetwork("ethereum");
-    setDone(true);
+  // const onSubmit = async (data) => {
+  //   // TODO weavedb保存
+  //   console.log(data);
+  //   await changeNetwork("ethereum");
+  //   setDone(true);
+  // };
+
+  const onClickSaveToENS = async (data) => {
+    console.log("click SaveToENS", data);
+
+    console.log("start registering ENS name");
+
+    await registerEnsName("fugafuga");
+  };
+
+  const onClickSaveToWeaveDB = async (data) => {
+    console.log("click SaveToWeaveDB", data);
   };
 
   const validationRules = {
@@ -96,7 +109,7 @@ const PlofileFormModal = ({ setDone }) => {
               <Stack
                 component="form"
                 noValidate
-                onSubmit={handleSubmit(onSubmit)}
+                // onSubmit={handleSubmit(onSubmit)}
                 spacing={2}
               >
                 <Controller
@@ -205,7 +218,7 @@ const PlofileFormModal = ({ setDone }) => {
                       color: "#FFF",
                       backgroundColor: "#251E2F",
                       height: 40,
-                      width: "70%",
+                      width: "45%",
                       maxWidth: 300,
                       borderRadius: 10,
                       display: "block",
@@ -215,8 +228,30 @@ const PlofileFormModal = ({ setDone }) => {
                       textTransform: "none",
                       opacity: 0.7,
                     }}
+                    onClick={handleSubmit(onClickSaveToENS)}
                   >
-                    Save
+                    Save to ENS
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={true}
+                    sx={{
+                      color: "#FFF",
+                      backgroundColor: "#251E2F",
+                      height: 40,
+                      width: "45%",
+                      maxWidth: 300,
+                      borderRadius: 10,
+                      display: "block",
+                      margin: "auto",
+                      my: 2,
+                      boxShadow: 5,
+                      textTransform: "none",
+                      opacity: 0.7,
+                    }}
+                    onClick={handleSubmit(onClickSaveToWeaveDB)}
+                  >
+                    Save to WeaveDB
                   </Button>
                 </Box>
               </Stack>

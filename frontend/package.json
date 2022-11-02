@@ -13,6 +13,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@web3auth/base": "^3.0.0",
+    "@web3auth/metamask-adapter": "^3.0.0",
     "@web3auth/modal": "^3.0.3",
     "@web3auth/openlogin-adapter": "^3.0.0",
     "ethers": "^5.7.2",
