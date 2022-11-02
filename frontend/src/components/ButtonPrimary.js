@@ -7,6 +7,9 @@ const ButtonPrimary = ({ text, onClickHandler }) => {
       onClick={onClickHandler}
       sx={{
         backgroundColor: "#251E2F",
+        "&:hover": {
+          backgroundColor: "#251E2F",
+        },
         height: 40,
         width: "70%",
         maxWidth: 300,

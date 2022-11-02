@@ -2,15 +2,20 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Button, Box, Container } from "@mui/material";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import mapStyles from "../utils/mapStyles";
+import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import ConnectWalletModal from "../components/ConnectWalletModal";
 import PlofileFormModal from "../components/PlofileFormModal";
-// import { Container } from "@mui/system";
+import CardSelectModal from "../components/CardSelectModal";
 
 const Map = () => {
   const [userPosition, setUserPosition] = useState({
     lat: 35.69575,
     lng: 139.77521,
   });
+
+  const { login, isInitializing, provider } = useWeb3Auth();
+  const [donePlofileSetting, setDonePlofileSetting] = useState(false);
+  const [doneCardSetting, setDoneCardSetting] = useState(false);
 
   const getPosition = () => {
     const posSuccess = (position) => {
@@ -50,8 +55,28 @@ const Map = () => {
           }}
           onClick={getPosition}
         >
-          <ConnectWalletModal />
-          <PlofileFormModal />
+          {!provider ? (
+            <>
+              <ConnectWalletModal />
+            </>
+          ) : (
+            <>
+              {donePlofileSetting === false ? (
+                <>
+                  <PlofileFormModal setDone={setDonePlofileSetting} />
+                </>
+              ) : (
+                <>
+                  {doneCardSetting === false && (
+                    <>
+                      <CardSelectModal setDone={setDoneCardSetting} />
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
           <Marker title={"現在地"} position={userPosition} />
         </GoogleMap>
       </LoadScript>

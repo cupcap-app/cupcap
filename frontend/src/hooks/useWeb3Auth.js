@@ -93,7 +93,7 @@ export const Web3AuthProvider = ({ children }) => {
 
   // web3authイベントリスナー
   const subscribeAuthEvents = (web3Auth) => {
-    web3Auth.on(ADAPTER_EVENTS.CONNECTED, (data) => {
+    web3Auth.on(ADAPTER_EVENTS.CONNECTED, async (data) => {
       console.log("web3Auth:", web3Auth);
       setWeb3Auth(web3Auth);
       console.log("web3AuthUser:", data);
