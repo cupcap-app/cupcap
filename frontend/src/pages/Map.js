@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { Button, Box, Container } from "@mui/material";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { use100vh } from "react-div-100vh";
 import mapStyles from "../utils/mapStyles";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import ConnectWalletModal from "../components/ConnectWalletModal";
-import PlofileFormModal from "../components/PlofileFormModal";
+import ProfileFormModal from "../components/ProfileFormModal";
 import CardSelectModal from "../components/CardSelectModal";
 import maker_self from "../public/marker_self.svg";
 import EventMarker from "../components/EventMarker";
@@ -15,6 +16,44 @@ import CalendarTabs from "../components/CalendarTabs";
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1;
 const currentDay = currentDate.getDate();
+
+const STATUS_WALLET_CONNECT = "STATUS_WALLET_CONNECT";
+const STATUS_PROFILE_SETTING = "STATUS_PROFILE_SETTING";
+const STATUS_CARD_SETTING = "STATUS_CARD_SETTING";
+const STATUS_DONE = "STATUS_DONE";
+
+const InitialForm = (props) => {
+  const { provider } = props;
+  const [doneProfileSetting, setProfileSettingDone] = useState(false);
+  const [doneCardSetting, setCardSettingDone] = useState(false);
+
+  const status = useMemo(() => {
+    if (!provider) {
+      return STATUS_WALLET_CONNECT;
+    }
+
+    if (!doneProfileSetting) {
+      return STATUS_PROFILE_SETTING;
+    }
+
+    if (!doneCardSetting) {
+      return STATUS_CARD_SETTING;
+    }
+
+    return STATUS_DONE;
+  }, [provider, doneProfileSetting, doneCardSetting]);
+
+  switch (status) {
+    case STATUS_WALLET_CONNECT:
+      return <ConnectWalletModal />;
+    case STATUS_PROFILE_SETTING:
+      return <ProfileFormModal setDone={setProfileSettingDone} />;
+    case STATUS_CARD_SETTING:
+      return <CardSelectModal setDone={setCardSettingDone} />;
+    case STATUS_DONE:
+      return null;
+  }
+};
 
 const Map = () => {
   const height100vh = use100vh();
@@ -34,8 +73,6 @@ const Map = () => {
   const [mode, setMode] = useState();
 
   const { login, isInitializing, provider } = useWeb3Auth();
-  const [donePlofileSetting, setDonePlofileSetting] = useState(false);
-  const [doneCardSetting, setDoneCardSetting] = useState(false);
 
   // 自分の現在地取得
   const getPosition = () => {
@@ -123,27 +160,7 @@ const Map = () => {
           <CalendarTabs setSelectedDate={setSelectedDate} />
           <ActionButtons setMode={setMode} />
           <MypageButton />
-          {!provider ? (
-            <>
-              <ConnectWalletModal />
-            </>
-          ) : (
-            <>
-              {donePlofileSetting === false ? (
-                <>
-                  <PlofileFormModal setDone={setDonePlofileSetting} />
-                </>
-              ) : (
-                <>
-                  {doneCardSetting === false && (
-                    <>
-                      <CardSelectModal setDone={setDoneCardSetting} />
-                    </>
-                  )}
-                </>
-              )}
-            </>
-          )}
+          <InitialForm provider={provider} />
 
           <Marker
             title={"現在地"}
@@ -172,3 +189,13 @@ const Map = () => {
 };
 
 export default Map;
+
+// ENSで登録
+
+// ENSが登録されている場合
+// => レコードだけ更新
+
+// ENSが登録されていない場合
+// => ENSドメインとyear入力
+// => Loader
+// => レコードを更新
