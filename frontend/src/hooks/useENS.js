@@ -64,11 +64,14 @@ export const STATUS_SENDING_REVERSE_RESOLVING =
 // 使用するドメインがセットされている
 export const STATUS_DOMAIN_READY = "STATUS_DOMAIN_READY";
 
-export const useENSRegister = () => {
+export const useENS = () => {
   const { provider, walletAddress, changeNetwork } = useWeb3Auth();
 
+  // ENSの設定ステータス
   const [status, setStatus] = useState(STATUS_NOT_INITIALIZED);
+  // 現在使用されているENSドメイン
   const [domain, setDomain] = useState(null); // xxx.eth
+  // ENSjsのインスタンス
   const [ensInstance, setEnsInstance] = useState(null);
 
   useEffect(() => {
@@ -140,6 +143,7 @@ export const useENSRegister = () => {
     [ensInstance]
   );
 
+  // 逆引きの登録
   const registerReverseResolve = useCallback(async (provider, domain) => {
     // domain: xxx.eth
     const { reverseRegistrar: reverseRegistrarAddress } = getENSAddresses();
@@ -174,7 +178,7 @@ export const useENSRegister = () => {
     [walletAddress]
   );
 
-  // ENSを登録する, もし指定したENSが取得済みだか所有者の場合は足りない処理をする
+  // ENSを登録する, もし指定したENSが取得済みだが所有者の場合は足りない処理をする
   const registerENSName = useCallback(
     // durationはドメイン保有期間の秒数
     // 少なくとも1ヶ月以上にする必要がある
@@ -326,6 +330,8 @@ export const useENSRegister = () => {
     [domain]
   );
 
+  // 指定したドメインにプロフィールを登録する
+  // 第二引数のオブジェクトのキーはENSで使われるキーを指定する
   const registerProfile = useCallback(async (domain, data) => {
     const { provider = null } = (await changeNetwork("ethereum")) ?? {};
 

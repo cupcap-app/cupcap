@@ -5,7 +5,7 @@ import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "./Loading";
 import ButtonPrimary from "./ButtonPrimary";
 import camera from "../public/camera.png";
-import { useENSRegister } from "../hooks/useENSRegister";
+import { useENS } from "../hooks/useENS";
 
 /**
  * プロフィール入力モーダル
@@ -19,7 +19,7 @@ const ProfileFormModal = ({ setDone }) => {
     getPrimaryDomain,
     getProfile,
     registerProfile: registerProfileInENS,
-  } = useENSRegister();
+  } = useENS();
 
   const [isLoading, setIsLoading] = useState(false);
   const {
