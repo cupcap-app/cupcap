@@ -9,17 +9,9 @@ import { ethers } from "ethers";
 import { ENS } from "@ensdomains/ensjs";
 
 const ENS_REGISTRAR_ABI = require("../abis/ens/ethregistrar/ETHRegistrarController.sol/ETHRegistrarController.json");
+const ENS_RESOLVER_ABI = require("../abis/ens/resolvers/Resolver.sol/Resolver.json");
+const ENS_REVERSE_REGISTRAR = require("../abis/ens/registry/ReverseRegistrar.sol/ReverseRegistrar.json");
 // import logo from "../public/logo.svg";
-
-const ENS_REGISTRAR_ADDRESS_MAINNET =
-  "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5";
-const ENS_REGISTRAR_ADDRESS_GOERLI =
-  "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5";
-
-const ENS_RESOLVER_ADDRESS_MAINNET =
-  "0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41";
-const ENS_RESOLVER_ADDRESS_GOERLI =
-  "0xE264d5bb84bA3b8061ADC38D3D76e6674aB91852";
 
 const CHAIN_CONFIGS = {
   ethereum: {
@@ -55,30 +47,6 @@ const CHAIN_CONFIGS = {
     },
   },
 };
-
-const ensContractAddressMap = {
-  mainnet: {
-    registrar: ENS_REGISTRAR_ADDRESS_MAINNET,
-    resolver: ENS_RESOLVER_ADDRESS_MAINNET,
-  },
-  goerli: {
-    registrar: ENS_REGISTRAR_ADDRESS_GOERLI,
-    resolver: ENS_RESOLVER_ADDRESS_GOERLI,
-  },
-};
-
-// 1年が何秒かを現在時刻を元に取得する
-function getOneYearInSeconds() {
-  const now = new Date();
-
-  const nextYear = new Date(now.getTime());
-  nextYear.setFullYear(nextYear.getFullYear() + 1);
-
-  const diff = nextYear.getTime() - now.getTime();
-
-  // ミリ秒を1秒に変換する
-  return Math.floor(diff / 1000);
-}
 
 export const Web3AuthContext = createContext({
   web3Auth: null,
@@ -218,17 +186,31 @@ export const Web3AuthProvider = ({ children }) => {
    * ENS 初期化処理
    */
   const initEns = async (walletAddress) => {
+    console.log("initEns::walletAddress", walletAddress);
     const ethProvider = new ethers.providers.JsonRpcProvider(
-      "https://eth-mainnet.g.alchemy.com/v2/Oa1UzWKEbhz_YAxLvActoqF2LTw4Bw1X"
-      // "https://eth-goerli.g.alchemy.com/v2/h-Piz66AMei2-elN93bLUjABX8h9Te9O"
+      // TODO: set in .env
+      // "https://eth-mainnet.g.alchemy.com/v2/Oa1UzWKEbhz_YAxLvActoqF2LTw4Bw1X"
+      "https://eth-goerli.g.alchemy.com/v2/h-Piz66AMei2-elN93bLUjABX8h9Te9O"
     );
+
     const ENSInstance = new ENS();
     await ENSInstance.setProvider(ethProvider);
+
     setEnsInstance(ENSInstance);
+
+    console.log("getAddr", await ENSInstance.getAddr("fugafugapiyohoge.eth"));
+
+    console.log(
+      "fugafugapiyohoge",
+      await ENSInstance.getProfile("fugafugapiyohoge.eth")
+    );
+
     const ensName = (
       await ENSInstance.batch(ENSInstance.getName.batch(walletAddress))
     )[0].name;
-    console.log(ensName);
+
+    console.log("ensName", ensName);
+
     if (ensName) {
       const ensTextRecord = await ENSInstance.batch(
         ENSInstance.getText.batch(ensName, "email"),
@@ -243,6 +225,9 @@ export const Web3AuthProvider = ({ children }) => {
         ENSInstance.getText.batch(ensName, "com.twitter"),
         ENSInstance.getText.batch(ensName, "org.telegram")
       );
+
+      console.log("ensTextRecord", ensTextRecord);
+
       setEnsTextRecord({
         email: ensTextRecord[0],
         url: ensTextRecord[1],
@@ -256,7 +241,6 @@ export const Web3AuthProvider = ({ children }) => {
         twitter: ensTextRecord[9],
         telegram: ensTextRecord[10],
       });
-      console.log(ensTextRecord);
     }
 
     return ensName;
@@ -430,135 +414,123 @@ export const Web3AuthProvider = ({ children }) => {
   };
 
   const registerEnsName = async (name) => {
-    if (!web3Auth || !ensInstance) {
-      console.log("provider not initialized yet");
-      return;
-    }
-
-    if (name.endsWith(".ens")) {
-      name = name.substring(0, name.length - ".ens".length);
-    }
-
-    console.log(`registerENSName::domain=${name}`);
-
-    const { provider = null } = (await changeNetwork("ethereum")) ?? {};
-
-    console.log("registerENSName::changed to ethereum, new provider", provider);
-
-    if (!provider) {
-      console.log("failed to changeNetwork");
-
-      return;
-    }
-
-    const network = await provider.getNetwork();
-
-    console.log("registerEnsName::network", network);
-
-    const { registrar: registrarAddress, resolver: resolverAddress } =
-      ensContractAddressMap[network.name] ?? {};
-
-    console.log("registerEnsName::registrarAddress", registrarAddress);
-    console.log("registerEnsName::resolverAddress", resolverAddress);
-    console.log("registerEnsName::ENS_REGISTRAR_ABI", ENS_REGISTRAR_ABI.abi);
-
-    const signer = provider.getSigner();
-
-    console.log("registerEnsName::signer", signer);
-
-    const registrar = new ethers.Contract(
-      registrarAddress,
-      ENS_REGISTRAR_ABI.abi,
-      signer
-    );
-
-    const valid = await registrar.valid(name);
-    if (!valid) {
-      throw new Error("ens domain is not valid");
-    }
-
-    const available = await registrar.available(name);
-    if (!available) {
-      throw new Error("ens domain is not available");
-    }
-
-    // 1. commitment phase
-    const randomValue = ethers.utils.randomBytes(32);
-
-    const secret =
-      "0x" +
-      Array.from(randomValue)
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-
-    const ownerAddress = await signer.getAddress();
-    // XXX: とりあえず3ヶ月
-    const duration = Math.floor(getOneYearInSeconds() / 4);
-
-    console.log("registerEnsName::ownerAddress", ownerAddress);
-    console.log("registerEnsName::duration", duration);
-    console.log("registerEnsName::secret", secret);
-
-    const commitment = await registrar.makeCommitmentWithConfig(
-      // name
-      name,
-      // owner
-      ownerAddress,
-      // secret
-      secret,
-      // resolver (public resolve)
-      resolverAddress,
-      // address (おそらく逆引きのアドレス)
-      ownerAddress
-    );
-
-    console.log("registerEnsName::commitment", commitment);
-
-    const commitTx = await registrar.commit(commitment);
-
-    console.log("registerEnsName::commitTx", commitTx);
-
-    const commitTxResult = await commitTx.wait();
-
-    console.log("registerEnsName::commitTxResult", commitTxResult);
-
-    // wait 1.5 mins
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1000 * 60 * 2);
-    });
-
-    console.log("2 mins has passed");
-
-    // 使用料を計算
-    const value = await registrar.rentPrice(name, duration);
-
-    console.log("registerEnsName::value", value);
-
-    const registerTx = await registrar.registerWithConfig(
-      // name
-      name,
-      // owner
-      ownerAddress,
-      // duration
-      duration,
-      // secret
-      secret,
-      // resolver (public resolve)
-      resolverAddress,
-      // address (おそらく逆引きのアドレス)
-      ownerAddress,
-      {
-        value: value + 1,
-      }
-    );
-
-    console.log("registerEnsName::registerTx", registerTx);
-
-    const registerTxResult = await registerTx.wait();
-
-    console.log("registerEnsName::registerTxResult", registerTxResult);
-
-    console.log("done");
+    // if (!web3Auth || !ensInstance) {
+    //   console.log("provider not initialized yet");
+    //   return;
+    // }
+    // if (name.endsWith(".ens")) {
+    //   name = name.substring(0, name.length - ".ens".length);
+    // }
+    // console.log(`registerENSName::domain=${name}`);
+    // const { provider = null } = (await changeNetwork("ethereum")) ?? {};
+    // console.log("registerENSName::changed to ethereum, new provider", provider);
+    // if (!provider) {
+    //   console.log("failed to changeNetwork");
+    //   return;
+    // }
+    // const network = await provider.getNetwork();
+    // console.log("registerEnsName::network", network);
+    // const {
+    //   registrar: registrarAddress,
+    //   resolver: resolverAddress,
+    //   reverseRegistrar: reverseRegistrarAddress,
+    // } = ensContractAddressMap[network.name] ?? {};
+    // console.log("registerEnsName::registrarAddress", registrarAddress);
+    // console.log("registerEnsName::resolverAddress", resolverAddress);
+    // console.log(
+    //   "registerEnsName::reverseRegistrarAddress",
+    //   reverseRegistrarAddress
+    // );
+    // console.log("registerEnsName::ENS_REGISTRAR_ABI", ENS_REGISTRAR_ABI.abi);
+    // const signer = provider.getSigner();
+    // console.log("registerEnsName::signer", signer);
+    // const registrar = new ethers.Contract(
+    //   registrarAddress,
+    //   ENS_REGISTRAR_ABI.abi,
+    //   signer
+    // );
+    // const valid = await registrar.valid(name);
+    // if (!valid) {
+    //   throw new Error("ens domain is not valid");
+    // }
+    // const available = await registrar.available(name);
+    // if (!available) {
+    //   throw new Error("ens domain is not available");
+    // }
+    // // 1. commitment phase
+    // const randomValue = ethers.utils.randomBytes(32);
+    // const secret =
+    //   "0x" +
+    //   Array.from(randomValue)
+    //     .map((b) => b.toString(16).padStart(2, "0"))
+    //     .join("");
+    // const ownerAddress = await signer.getAddress();
+    // // XXX: とりあえず3ヶ月
+    // const duration = Math.floor(getOneYearInSeconds() / 4);
+    // console.log("registerEnsName::ownerAddress", ownerAddress);
+    // console.log("registerEnsName::duration", duration);
+    // console.log("registerEnsName::secret", secret);
+    // const commitment = await registrar.makeCommitmentWithConfig(
+    //   // name
+    //   name,
+    //   // owner
+    //   ownerAddress,
+    //   // secret
+    //   secret,
+    //   // resolver (public resolve)
+    //   resolverAddress,
+    //   // address (おそらく逆引きのアドレス)
+    //   ownerAddress
+    // );
+    // console.log("registerEnsName::commitment", commitment);
+    // const commitTx = await registrar.commit(commitment);
+    // console.log("registerEnsName::commitTx", commitTx);
+    // const commitTxResult = await commitTx.wait();
+    // console.log("registerEnsName::commitTxResult", commitTxResult);
+    // // 2. commitから登録まで1分以上待つ
+    // // wait 1 min
+    // await new Promise((resolve) => {
+    //   setTimeout(resolve, 1000 * 60);
+    // });
+    // console.log("1 min has passed");
+    // // 3. 登録
+    // // 使用料を計算
+    // const value = await registrar.rentPrice(name, duration);
+    // console.log("registerEnsName::value", value);
+    // const registerTx = await registrar.registerWithConfig(
+    //   // name
+    //   name,
+    //   // owner
+    //   ownerAddress,
+    //   // duration
+    //   duration,
+    //   // secret
+    //   secret,
+    //   // resolver (public resolve)
+    //   resolverAddress,
+    //   // address
+    //   ownerAddress,
+    //   {
+    //     value: value,
+    //   }
+    // );
+    // console.log("registerEnsName::registerTx", registerTx);
+    // const registerTxResult = await registerTx.wait();
+    // console.log("registerEnsName::registerTxResult", registerTxResult);
+    // // 4. 逆引きの登録
+    // const reverseRegistrar = new ethers.Contract(
+    //   reverseRegistrarAddress,
+    //   ENS_REVERSE_REGISTRAR.abi,
+    //   signer
+    // );
+    // const reverseRegisterTx = await reverseRegistrar.setName(name);
+    // console.log("registerEnsName::reverseRegisterTx", reverseRegisterTx);
+    // const reverseRegisterResult = await reverseRegisterTx.wait();
+    // console.log(
+    //   "registerEnsName::reverseRegisterResult",
+    //   reverseRegisterResult
+    // );
+    // console.log("registerEnsName::done");
   };
 
   const contextProvider = {

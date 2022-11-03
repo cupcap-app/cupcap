@@ -1,18 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Box, TextField, Stack } from "@mui/material";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "./Loading";
 import ButtonPrimary from "./ButtonPrimary";
 import camera from "../public/camera.png";
+import { useENSRegister } from "../hooks/useENSRegister";
 
 /**
  * プロフィール入力モーダル
  */
-const PlofileFormModal = ({ setDone }) => {
+const ProfileFormModal = ({ setDone }) => {
   // web3auth
-  const { provider, ensTextRecord, changeNetwork, registerEnsName } =
-    useWeb3Auth();
+  const { provider, walletAddress } = useWeb3Auth();
+  const {
+    domain,
+    registerENSName,
+    getPrimaryDomain,
+    getProfile,
+    registerProfile: registerProfileInENS,
+  } = useENSRegister();
+
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
@@ -33,20 +41,35 @@ const PlofileFormModal = ({ setDone }) => {
   });
 
   const selectImage = () => {};
-  // const onSubmit = async (data) => {
-  //   // TODO weavedb保存
-  //   console.log(data);
-  //   await changeNetwork("ethereum");
-  //   setDone(true);
-  // };
 
-  const onClickSaveToENS = async (data) => {
-    console.log("click SaveToENS", data);
+  const onClickSaveToENS = useCallback(
+    async (data) => {
+      let primaryDomain = await getPrimaryDomain(walletAddress);
+      if (!primaryDomain) {
+        // TODO: ドメイン登録画面に繊維する
+        // ドメイン登録を呼び出す
+        // primaryDomain = await registerENSName("hogehogefugafugapiyo.eth");
+      }
 
-    console.log("start registering ENS name");
+      const currentProfile = await getProfile(primaryDomain, ["email", "url"]);
 
-    await registerEnsName("fugafuga");
-  };
+      console.log("currentProfile", currentProfile);
+
+      await registerProfileInENS(primaryDomain, {
+        // ENSのレコードにマッピング
+        avatar: data.avatar ?? "",
+        displayName: data.displayName ?? "",
+        "com.github": data.github ?? "",
+        "com.twitter": data.twitter ?? "",
+        "com.discord": data.discord ?? "",
+        "org.telegram": data.telegram ?? "",
+        email: data.email ?? "",
+        url: data.url ?? "",
+        description: data.description ?? "",
+      });
+    },
+    [getPrimaryDomain, walletAddress]
+  );
 
   const onClickSaveToWeaveDB = async (data) => {
     console.log("click SaveToWeaveDB", data);
@@ -263,4 +286,4 @@ const PlofileFormModal = ({ setDone }) => {
   );
 };
 
-export default PlofileFormModal;
+export default ProfileFormModal;
