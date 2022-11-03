@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Marker } from "@react-google-maps/api";
 import { Box, Modal, Typography } from "@mui/material";
+import { AnimatePresence, motion } from "framer-motion";
 import event_pin from "../public/event_pin.svg";
 
 const modalStyle = {
@@ -40,12 +41,18 @@ const EventMarker = ({ eventInfo }) => {
         clickable
         onClick={() => setIsModalOpen(true)}
       />
+
       <Modal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         BackdropProps={{ style: { backgroundColor: "rgba(0,0,0,0.15)" } }}
       >
-        <Box sx={modalStyle}>
+        <Box
+          sx={modalStyle}
+          component={motion.div}
+          initial={{ top: "0%" }}
+          animate={{ top: "30%" }}
+        >
           <Typography variant="h6" component="h2" sx={{ color: "#FFF" }}>
             {eventInfo.title}
           </Typography>

@@ -31,6 +31,7 @@ const Map = () => {
     month: currentMonth,
     day: currentDay,
   });
+  const [mode, setMode] = useState();
 
   const { login, isInitializing, provider } = useWeb3Auth();
   const [donePlofileSetting, setDonePlofileSetting] = useState(false);
@@ -119,9 +120,9 @@ const Map = () => {
             keyboardShortcuts: false,
           }}
         >
-          <ActionButtons />
-          <MypageButton />
           <CalendarTabs setSelectedDate={setSelectedDate} />
+          <ActionButtons setMode={setMode} />
+          <MypageButton />
           {!provider ? (
             <>
               <ConnectWalletModal />
