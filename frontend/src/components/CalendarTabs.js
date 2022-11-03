@@ -87,7 +87,7 @@ const MONTH = [
 /**
  * カレンダータブ
  */
-const CalendarTabs = ({ setDone }) => {
+const CalendarTabs = ({ setSelectedDate }) => {
   // web3auth
   const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
   const [isLoading, setIsLoading] = useState(false);
@@ -108,9 +108,11 @@ const CalendarTabs = ({ setDone }) => {
     setSelectedMonthLastDate(lastDate);
   };
   const afterChangeDay = (event) => {
-    console.log(`${selectedMonth}/${event + 1}`);
-    setSelectedDay(event + 1);
+    const day = event + 1;
+    console.log(`${selectedMonth}/${day}`);
+    setSelectedDay(day);
     // TODO イベント取得処理
+    setSelectedDate({ year: 2022, month: selectedMonth, day: day });
   };
 
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import Div100vh from "react-div-100vh";
 import mapStyles from "../utils/mapStyles";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import ConnectWalletModal from "../components/ConnectWalletModal";
@@ -11,6 +12,10 @@ import ActionButtons from "../components/ActionButtons";
 import MypageButton from "../components/MypageButton";
 import CalendarTabs from "../components/CalendarTabs";
 
+const currentDate = new Date();
+const currentMonth = currentDate.getMonth() + 1;
+const currentDay = currentDate.getDate();
+
 const Map = () => {
   // 現在地
   const [userPosition, setUserPosition] = useState({
@@ -20,6 +25,11 @@ const Map = () => {
 
   // イベント開催地List
   const [eventInfoList, setEventInfoList] = useState([]);
+  const [selectedDate, setSelectedDate] = useState({
+    year: 2022,
+    month: currentMonth,
+    day: currentDay,
+  });
 
   const { login, isInitializing, provider } = useWeb3Auth();
   const [donePlofileSetting, setDonePlofileSetting] = useState(false);
@@ -49,22 +59,36 @@ const Map = () => {
       {
         title: "テストイベントA",
         position: {
-          lat: userPosition.lat + 0.008,
-          lng: userPosition.lng + 0.008,
+          lat: userPosition.lat + 0.005 * Math.random() * 2,
+          lng: userPosition.lng + 0.005 * Math.random() * 2,
         },
       },
       {
         title: "テストイベントB",
         position: {
-          lat: userPosition.lat + 0.02,
-          lng: userPosition.lng - 0.02,
+          lat: userPosition.lat + 0.005 * Math.random() * 2,
+          lng: userPosition.lng - 0.005 * Math.random() * 2,
         },
       },
       {
         title: "テストイベントC",
         position: {
-          lat: userPosition.lat - 0.01,
-          lng: userPosition.lng - 0.002,
+          lat: userPosition.lat - 0.005 * Math.random() * 2,
+          lng: userPosition.lng - 0.005 * Math.random() * 2,
+        },
+      },
+      {
+        title: "テストイベントD",
+        position: {
+          lat: userPosition.lat - 0.005 * Math.random() * 2,
+          lng: userPosition.lng - 0.005 * Math.random() * 2,
+        },
+      },
+      {
+        title: "テストイベントE",
+        position: {
+          lat: userPosition.lat - 0.005 * Math.random() * 2,
+          lng: userPosition.lng - 0.005 * Math.random() * 2,
         },
       },
     ]);
@@ -72,7 +96,7 @@ const Map = () => {
 
   useEffect(() => {
     getEventPosition();
-  }, [userPosition]);
+  }, [userPosition, selectedDate]);
 
   useEffect(() => {
     getPosition();
@@ -80,67 +104,69 @@ const Map = () => {
 
   return (
     <>
-      <LoadScript googleMapsApiKey="AIzaSyBJ2t7R-5UmUUKZtItzAh6wMG9A_Wb6mWE">
-        <GoogleMap
-          mapContainerStyle={{
-            height: "100vh",
-            width: "100%",
-          }}
-          center={userPosition}
-          zoom={15}
-          options={{
-            styles: mapStyles,
-            disableDefaultUI: true,
-            keyboardShortcuts: false,
-          }}
-        >
-          <ActionButtons />
-          <MypageButton />
-          <CalendarTabs />
-          {!provider ? (
-            <>
-              <ConnectWalletModal />
-            </>
-          ) : (
-            <>
-              {donePlofileSetting === false ? (
-                <>
-                  <PlofileFormModal setDone={setDonePlofileSetting} />
-                </>
-              ) : (
-                <>
-                  {doneCardSetting === false && (
-                    <>
-                      <CardSelectModal setDone={setDoneCardSetting} />
-                    </>
-                  )}
-                </>
-              )}
-            </>
-          )}
-
-          <Marker
-            title={"現在地"}
-            position={userPosition}
-            icon={{
-              url: maker_self,
+      <Div100vh>
+        <LoadScript googleMapsApiKey="AIzaSyBJ2t7R-5UmUUKZtItzAh6wMG9A_Wb6mWE">
+          <GoogleMap
+            mapContainerStyle={{
+              height: "100vh",
+              width: "100%",
             }}
-            visible={!!window.google}
-            animation={window.google && window.google.maps.Animation.BOUNCE}
-            clickable={false}
-          />
-          {eventInfoList.map((eventInfo) => {
-            return (
+            center={userPosition}
+            zoom={15}
+            options={{
+              styles: mapStyles,
+              disableDefaultUI: true,
+              keyboardShortcuts: false,
+            }}
+          >
+            <ActionButtons />
+            <MypageButton />
+            <CalendarTabs setSelectedDate={setSelectedDate} />
+            {!provider ? (
               <>
-                <EventMarker
-                  key={`${eventInfo.title}-${eventInfo.position.lat}-${eventInfo.position.lng}`}
-                  eventInfo={eventInfo}
-                />
+                <ConnectWalletModal />
               </>
-            );
-          })}
-        </GoogleMap>
-      </LoadScript>
+            ) : (
+              <>
+                {donePlofileSetting === false ? (
+                  <>
+                    <PlofileFormModal setDone={setDonePlofileSetting} />
+                  </>
+                ) : (
+                  <>
+                    {doneCardSetting === false && (
+                      <>
+                        <CardSelectModal setDone={setDoneCardSetting} />
+                      </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+
+            <Marker
+              title={"現在地"}
+              position={userPosition}
+              icon={{
+                url: maker_self,
+              }}
+              visible={!!window.google}
+              animation={window.google && window.google.maps.Animation.BOUNCE}
+              clickable={false}
+            />
+            {eventInfoList.map((eventInfo) => {
+              return (
+                <>
+                  <EventMarker
+                    key={`${eventInfo.title}-${eventInfo.position.lat}-${eventInfo.position.lng}`}
+                    eventInfo={eventInfo}
+                  />
+                </>
+              );
+            })}
+          </GoogleMap>
+        </LoadScript>
+      </Div100vh>
     </>
   );
 };
