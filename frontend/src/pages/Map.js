@@ -7,6 +7,9 @@ import PlofileFormModal from "../components/PlofileFormModal";
 import CardSelectModal from "../components/CardSelectModal";
 import maker_self from "../public/marker_self.svg";
 import EventMarker from "../components/EventMarker";
+import ActionButtons from "../components/ActionButtons";
+import MypageButton from "../components/MypageButton";
+import CalendarTabs from "../components/CalendarTabs";
 
 const Map = () => {
   // 現在地
@@ -88,9 +91,12 @@ const Map = () => {
           options={{
             styles: mapStyles,
             disableDefaultUI: true,
-            zoomControl: true,
+            keyboardShortcuts: false,
           }}
         >
+          <ActionButtons />
+          <MypageButton />
+          <CalendarTabs />
           {!provider ? (
             <>
               <ConnectWalletModal />
