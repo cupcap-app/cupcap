@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-import Div100vh from "react-div-100vh";
+import { use100vh } from "react-div-100vh";
 import mapStyles from "../utils/mapStyles";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import ConnectWalletModal from "../components/ConnectWalletModal";
@@ -17,6 +17,7 @@ const currentMonth = currentDate.getMonth() + 1;
 const currentDay = currentDate.getDate();
 
 const Map = () => {
+  const height100vh = use100vh();
   // 現在地
   const [userPosition, setUserPosition] = useState({
     lat: 35.69575,
@@ -104,69 +105,67 @@ const Map = () => {
 
   return (
     <>
-      <Div100vh>
-        <LoadScript googleMapsApiKey="AIzaSyBJ2t7R-5UmUUKZtItzAh6wMG9A_Wb6mWE">
-          <GoogleMap
-            mapContainerStyle={{
-              height: "100vh",
-              width: "100%",
-            }}
-            center={userPosition}
-            zoom={15}
-            options={{
-              styles: mapStyles,
-              disableDefaultUI: true,
-              keyboardShortcuts: false,
-            }}
-          >
-            <ActionButtons />
-            <MypageButton />
-            <CalendarTabs setSelectedDate={setSelectedDate} />
-            {!provider ? (
-              <>
-                <ConnectWalletModal />
-              </>
-            ) : (
-              <>
-                {donePlofileSetting === false ? (
-                  <>
-                    <PlofileFormModal setDone={setDonePlofileSetting} />
-                  </>
-                ) : (
-                  <>
-                    {doneCardSetting === false && (
-                      <>
-                        <CardSelectModal setDone={setDoneCardSetting} />
-                      </>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-
-            <Marker
-              title={"現在地"}
-              position={userPosition}
-              icon={{
-                url: maker_self,
-              }}
-              visible={!!window.google}
-              animation={window.google && window.google.maps.Animation.BOUNCE}
-              clickable={false}
-            />
-            {eventInfoList.map((eventInfo) => {
-              return (
+      <LoadScript googleMapsApiKey="AIzaSyBJ2t7R-5UmUUKZtItzAh6wMG9A_Wb6mWE">
+        <GoogleMap
+          mapContainerStyle={{
+            height: height100vh,
+            width: "100%",
+          }}
+          center={userPosition}
+          zoom={15}
+          options={{
+            styles: mapStyles,
+            disableDefaultUI: true,
+            keyboardShortcuts: false,
+          }}
+        >
+          <ActionButtons />
+          <MypageButton />
+          <CalendarTabs setSelectedDate={setSelectedDate} />
+          {!provider ? (
+            <>
+              <ConnectWalletModal />
+            </>
+          ) : (
+            <>
+              {donePlofileSetting === false ? (
                 <>
-                  <EventMarker
-                    key={`${eventInfo.title}-${eventInfo.position.lat}-${eventInfo.position.lng}`}
-                    eventInfo={eventInfo}
-                  />
+                  <PlofileFormModal setDone={setDonePlofileSetting} />
                 </>
-              );
-            })}
-          </GoogleMap>
-        </LoadScript>
-      </Div100vh>
+              ) : (
+                <>
+                  {doneCardSetting === false && (
+                    <>
+                      <CardSelectModal setDone={setDoneCardSetting} />
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          <Marker
+            title={"現在地"}
+            position={userPosition}
+            icon={{
+              url: maker_self,
+            }}
+            visible={!!window.google}
+            animation={window.google && window.google.maps.Animation.BOUNCE}
+            clickable={false}
+          />
+          {eventInfoList.map((eventInfo) => {
+            return (
+              <>
+                <EventMarker
+                  key={`${eventInfo.title}-${eventInfo.position.lat}-${eventInfo.position.lng}`}
+                  eventInfo={eventInfo}
+                />
+              </>
+            );
+          })}
+        </GoogleMap>
+      </LoadScript>
     </>
   );
 };
