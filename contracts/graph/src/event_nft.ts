@@ -38,6 +38,9 @@ export function handleEventCreated(e: EventCreated): void {
   event.startedAt = e.params.startedAt;
   event.endedAt = e.params.endedAt;
   event.limitOfParticipants = e.params.limitOfParticipants;
+  event.participantType = e.params.participantType;
+  event.targetTokenAddress = e.params.targetTokenAddress;
+  event.targetTokenID = e.params.targetTokenID;
 
   event.save();
 }

@@ -20,7 +20,7 @@ dataSources:
           file: ./abis/EventNFT.sol/EventNFT.json
       file: ./src/event_nft.ts
       eventHandlers:
-        - event: EventCreated(uint256,indexed address,uint256,uint256,uint256)
+        - event: EventCreated(uint256,indexed address,uint256,uint256,uint256,string,address,uint256)
           handler: handleEventCreated
         - event: Participated(indexed uint256,indexed address,uint256,uint256)
           handler: handleParticipated
