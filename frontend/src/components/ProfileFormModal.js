@@ -1,17 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Box, TextField, Stack } from "@mui/material";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "./Loading";
 import ButtonPrimary from "./ButtonPrimary";
 import camera from "../public/camera.png";
+import { useENS } from "../hooks/useENS";
 
 /**
  * プロフィール入力モーダル
  */
-const PlofileFormModal = ({ setDone }) => {
+const ProfileFormModal = ({ setDone }) => {
   // web3auth
-  const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
+  const { provider, walletAddress } = useWeb3Auth();
+  const {
+    domain,
+    registerENSName,
+    getPrimaryDomain,
+    getProfile,
+    registerProfile: registerProfileInENS,
+  } = useENS();
+
   const [isLoading, setIsLoading] = useState(false);
   const {
     control,
@@ -32,11 +41,38 @@ const PlofileFormModal = ({ setDone }) => {
   });
 
   const selectImage = () => {};
-  const onSubmit = async (data) => {
-    // TODO weavedb保存
-    console.log(data);
-    await changeNetwork("ethereum");
-    setDone(true);
+
+  const onClickSaveToENS = useCallback(
+    async (data) => {
+      let primaryDomain = await getPrimaryDomain(walletAddress);
+      if (!primaryDomain) {
+        // TODO: ドメイン登録画面に繊維する
+        // ドメイン登録を呼び出す
+        // primaryDomain = await registerENSName("hogehogefugafugapiyo.eth");
+      }
+
+      const currentProfile = await getProfile(primaryDomain, ["email", "url"]);
+
+      console.log("currentProfile", currentProfile);
+
+      await registerProfileInENS(primaryDomain, {
+        // ENSのレコードにマッピング
+        avatar: data.avatar ?? "",
+        displayName: data.displayName ?? "",
+        "com.github": data.github ?? "",
+        "com.twitter": data.twitter ?? "",
+        "com.discord": data.discord ?? "",
+        "org.telegram": data.telegram ?? "",
+        email: data.email ?? "",
+        url: data.url ?? "",
+        description: data.description ?? "",
+      });
+    },
+    [getPrimaryDomain, walletAddress]
+  );
+
+  const onClickSaveToWeaveDB = async (data) => {
+    console.log("click SaveToWeaveDB", data);
   };
 
   const validationRules = {
@@ -56,7 +92,7 @@ const PlofileFormModal = ({ setDone }) => {
               backgroundColor: "rgba(217, 217, 217, 0.1)",
               border: 0,
               borderRadius: "15px",
-              backdropFilter: "blur(41.1333px)",
+              backdropFilter: "blur(20px)",
               boxShadow: 10,
               display: "block",
               m: "auto",
@@ -96,7 +132,7 @@ const PlofileFormModal = ({ setDone }) => {
               <Stack
                 component="form"
                 noValidate
-                onSubmit={handleSubmit(onSubmit)}
+                // onSubmit={handleSubmit(onSubmit)}
                 spacing={2}
               >
                 <Controller
@@ -205,7 +241,7 @@ const PlofileFormModal = ({ setDone }) => {
                       color: "#FFF",
                       backgroundColor: "#251E2F",
                       height: 40,
-                      width: "70%",
+                      width: "45%",
                       maxWidth: 300,
                       borderRadius: 10,
                       display: "block",
@@ -215,8 +251,30 @@ const PlofileFormModal = ({ setDone }) => {
                       textTransform: "none",
                       opacity: 0.7,
                     }}
+                    onClick={handleSubmit(onClickSaveToENS)}
                   >
-                    Save
+                    Save to ENS
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={true}
+                    sx={{
+                      color: "#FFF",
+                      backgroundColor: "#251E2F",
+                      height: 40,
+                      width: "45%",
+                      maxWidth: 300,
+                      borderRadius: 10,
+                      display: "block",
+                      margin: "auto",
+                      my: 2,
+                      boxShadow: 5,
+                      textTransform: "none",
+                      opacity: 0.7,
+                    }}
+                    onClick={handleSubmit(onClickSaveToWeaveDB)}
+                  >
+                    Save to WeaveDB
                   </Button>
                 </Box>
               </Stack>
@@ -228,4 +286,4 @@ const PlofileFormModal = ({ setDone }) => {
   );
 };
 
-export default PlofileFormModal;
+export default ProfileFormModal;

@@ -1,11 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ADAPTER_EVENTS, WALLET_ADAPTERS } from "@web3auth/base";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
+import { MetamaskAdapter } from "@web3auth/metamask-adapter";
 import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES } from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { ethers } from "ethers";
 import { ENS } from "@ensdomains/ensjs";
+
+const ENS_REGISTRAR_ABI = require("../abis/ens/ethregistrar/ETHRegistrarController.sol/ETHRegistrarController.json");
+const ENS_RESOLVER_ABI = require("../abis/ens/resolvers/Resolver.sol/Resolver.json");
+const ENS_REVERSE_REGISTRAR = require("../abis/ens/registry/ReverseRegistrar.sol/ReverseRegistrar.json");
 // import logo from "../public/logo.svg";
 
 const CHAIN_CONFIGS = {
@@ -148,19 +153,22 @@ export const Web3AuthProvider = ({ children }) => {
           //   appLogo: logo,
         },
       });
-      const openloginAdapter = new OpenloginAdapter({
-        adapterSettings: {
-          clientId: process.env.REACT_APP_WEB3AUTH_CLIENT_ID,
-          network: "mainnet",
-          uxMode: "popup",
-          whiteLabel: {
-            name: "CupCap",
-            defaultLanguage: "ja",
-            dark: true,
+
+      // OpenAPI
+      web3Auth.configureAdapter(
+        new OpenloginAdapter({
+          adapterSettings: {
+            clientId: process.env.REACT_APP_WEB3AUTH_CLIENT_ID,
+            network: "mainnet",
+            uxMode: "popup",
+            whiteLabel: {
+              name: "CupCap",
+              defaultLanguage: "ja",
+              dark: true,
+            },
           },
-        },
-      });
-      web3Auth.configureAdapter(openloginAdapter);
+        })
+      );
 
       subscribeAuthEvents(web3Auth);
 
@@ -178,17 +186,31 @@ export const Web3AuthProvider = ({ children }) => {
    * ENS 初期化処理
    */
   const initEns = async (walletAddress) => {
+    console.log("initEns::walletAddress", walletAddress);
     const ethProvider = new ethers.providers.JsonRpcProvider(
-      "https://eth-mainnet.g.alchemy.com/v2/Oa1UzWKEbhz_YAxLvActoqF2LTw4Bw1X"
-      // "https://eth-goerli.g.alchemy.com/v2/h-Piz66AMei2-elN93bLUjABX8h9Te9O"
+      // TODO: set in .env
+      // "https://eth-mainnet.g.alchemy.com/v2/Oa1UzWKEbhz_YAxLvActoqF2LTw4Bw1X"
+      "https://eth-goerli.g.alchemy.com/v2/h-Piz66AMei2-elN93bLUjABX8h9Te9O"
     );
+
     const ENSInstance = new ENS();
     await ENSInstance.setProvider(ethProvider);
+
     setEnsInstance(ENSInstance);
+
+    console.log("getAddr", await ENSInstance.getAddr("fugafugapiyohoge.eth"));
+
+    console.log(
+      "fugafugapiyohoge",
+      await ENSInstance.getProfile("fugafugapiyohoge.eth")
+    );
+
     const ensName = (
       await ENSInstance.batch(ENSInstance.getName.batch(walletAddress))
     )[0].name;
-    console.log(ensName);
+
+    console.log("ensName", ensName);
+
     if (ensName) {
       const ensTextRecord = await ENSInstance.batch(
         ENSInstance.getText.batch(ensName, "email"),
@@ -203,6 +225,9 @@ export const Web3AuthProvider = ({ children }) => {
         ENSInstance.getText.batch(ensName, "com.twitter"),
         ENSInstance.getText.batch(ensName, "org.telegram")
       );
+
+      console.log("ensTextRecord", ensTextRecord);
+
       setEnsTextRecord({
         email: ensTextRecord[0],
         url: ensTextRecord[1],
@@ -216,7 +241,6 @@ export const Web3AuthProvider = ({ children }) => {
         twitter: ensTextRecord[9],
         telegram: ensTextRecord[10],
       });
-      console.log(ensTextRecord);
     }
 
     return ensName;
@@ -280,6 +304,7 @@ export const Web3AuthProvider = ({ children }) => {
         CHAIN_CONFIGS[newChain][process.env.REACT_APP_NETWORK].chainName
       }`
     );
+
     if (web3AuthUser.adapter === "openlogin") {
       const privateKey = await web3Auth.provider.request({
         method: "eth_private_key",
@@ -296,6 +321,8 @@ export const Web3AuthProvider = ({ children }) => {
       );
       setProvider(newProvider);
       setChain(newChain);
+
+      return { provider: newProvider, chain: newChain };
     } else {
       try {
         // here web3auth provider is the provider you get after user login with web3auth.
@@ -308,7 +335,10 @@ export const Web3AuthProvider = ({ children }) => {
             },
           ],
         });
+
         setChain(newChain);
+
+        return { provider: provider, chain: newChain };
       } catch (switchError) {
         console.log(switchError);
         // This error code indicates that the chain has not been added to web3auth.
@@ -384,60 +414,123 @@ export const Web3AuthProvider = ({ children }) => {
   };
 
   const registerEnsName = async (name) => {
-    if (!web3Auth || !ensInstance) {
-      console.log("provider not initialized yet");
-      return;
-    }
-    await changeNetwork("ethereum");
-    const ENSInstance = new ENS();
-    await ENSInstance.setProvider(provider);
-    try {
-      const duration = 31536000;
-      const { customData, ...commitPopTx } =
-        await ENSInstance.commitName.populateTransaction(name, {
-          duration,
-          owner: walletAddress,
-          addressOrIndex: walletAddress,
-        });
-      const commitTx = await provider.getSigner().sendTransaction(commitPopTx);
-      console.log(commitTx);
-      await commitTx.wait();
-      console.log("commitTx:done");
-
-      const { secret, wrapperExpiry } = customData;
-
-      // console.log("sleep 1minuts");
-      // await new Promise((resolve) => setTimeout(resolve, 70000));
-
-      const controller =
-        await ENSInstance.contracts.getEthRegistrarController();
-      console.log(controller);
-      console.log(name, duration);
-      const [price] = await controller.rentPrice(name, duration);
-
-      console.log({
-        secret,
-        wrapperExpiry,
-        duration,
-        owner: walletAddress,
-        addressOrIndex: walletAddress,
-        value: price,
-      });
-
-      const tx = await ENSInstance.registerName(name, {
-        secret,
-        wrapperExpiry,
-        duration,
-        owner: walletAddress,
-        addressOrIndex: walletAddress,
-        value: price.mul(120).div(100),
-      });
-      console.log(tx);
-      await tx.wait();
-      console.log("tx:done");
-    } catch (error) {
-      console.error("Error", error);
-    }
+    // if (!web3Auth || !ensInstance) {
+    //   console.log("provider not initialized yet");
+    //   return;
+    // }
+    // if (name.endsWith(".ens")) {
+    //   name = name.substring(0, name.length - ".ens".length);
+    // }
+    // console.log(`registerENSName::domain=${name}`);
+    // const { provider = null } = (await changeNetwork("ethereum")) ?? {};
+    // console.log("registerENSName::changed to ethereum, new provider", provider);
+    // if (!provider) {
+    //   console.log("failed to changeNetwork");
+    //   return;
+    // }
+    // const network = await provider.getNetwork();
+    // console.log("registerEnsName::network", network);
+    // const {
+    //   registrar: registrarAddress,
+    //   resolver: resolverAddress,
+    //   reverseRegistrar: reverseRegistrarAddress,
+    // } = ensContractAddressMap[network.name] ?? {};
+    // console.log("registerEnsName::registrarAddress", registrarAddress);
+    // console.log("registerEnsName::resolverAddress", resolverAddress);
+    // console.log(
+    //   "registerEnsName::reverseRegistrarAddress",
+    //   reverseRegistrarAddress
+    // );
+    // console.log("registerEnsName::ENS_REGISTRAR_ABI", ENS_REGISTRAR_ABI.abi);
+    // const signer = provider.getSigner();
+    // console.log("registerEnsName::signer", signer);
+    // const registrar = new ethers.Contract(
+    //   registrarAddress,
+    //   ENS_REGISTRAR_ABI.abi,
+    //   signer
+    // );
+    // const valid = await registrar.valid(name);
+    // if (!valid) {
+    //   throw new Error("ens domain is not valid");
+    // }
+    // const available = await registrar.available(name);
+    // if (!available) {
+    //   throw new Error("ens domain is not available");
+    // }
+    // // 1. commitment phase
+    // const randomValue = ethers.utils.randomBytes(32);
+    // const secret =
+    //   "0x" +
+    //   Array.from(randomValue)
+    //     .map((b) => b.toString(16).padStart(2, "0"))
+    //     .join("");
+    // const ownerAddress = await signer.getAddress();
+    // // XXX: とりあえず3ヶ月
+    // const duration = Math.floor(getOneYearInSeconds() / 4);
+    // console.log("registerEnsName::ownerAddress", ownerAddress);
+    // console.log("registerEnsName::duration", duration);
+    // console.log("registerEnsName::secret", secret);
+    // const commitment = await registrar.makeCommitmentWithConfig(
+    //   // name
+    //   name,
+    //   // owner
+    //   ownerAddress,
+    //   // secret
+    //   secret,
+    //   // resolver (public resolve)
+    //   resolverAddress,
+    //   // address (おそらく逆引きのアドレス)
+    //   ownerAddress
+    // );
+    // console.log("registerEnsName::commitment", commitment);
+    // const commitTx = await registrar.commit(commitment);
+    // console.log("registerEnsName::commitTx", commitTx);
+    // const commitTxResult = await commitTx.wait();
+    // console.log("registerEnsName::commitTxResult", commitTxResult);
+    // // 2. commitから登録まで1分以上待つ
+    // // wait 1 min
+    // await new Promise((resolve) => {
+    //   setTimeout(resolve, 1000 * 60);
+    // });
+    // console.log("1 min has passed");
+    // // 3. 登録
+    // // 使用料を計算
+    // const value = await registrar.rentPrice(name, duration);
+    // console.log("registerEnsName::value", value);
+    // const registerTx = await registrar.registerWithConfig(
+    //   // name
+    //   name,
+    //   // owner
+    //   ownerAddress,
+    //   // duration
+    //   duration,
+    //   // secret
+    //   secret,
+    //   // resolver (public resolve)
+    //   resolverAddress,
+    //   // address
+    //   ownerAddress,
+    //   {
+    //     value: value,
+    //   }
+    // );
+    // console.log("registerEnsName::registerTx", registerTx);
+    // const registerTxResult = await registerTx.wait();
+    // console.log("registerEnsName::registerTxResult", registerTxResult);
+    // // 4. 逆引きの登録
+    // const reverseRegistrar = new ethers.Contract(
+    //   reverseRegistrarAddress,
+    //   ENS_REVERSE_REGISTRAR.abi,
+    //   signer
+    // );
+    // const reverseRegisterTx = await reverseRegistrar.setName(name);
+    // console.log("registerEnsName::reverseRegisterTx", reverseRegisterTx);
+    // const reverseRegisterResult = await reverseRegisterTx.wait();
+    // console.log(
+    //   "registerEnsName::reverseRegisterResult",
+    //   reverseRegisterResult
+    // );
+    // console.log("registerEnsName::done");
   };
 
   const contextProvider = {
