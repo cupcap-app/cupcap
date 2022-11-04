@@ -6,6 +6,9 @@ type Event @entity {
   limitOfParticipants: BigInt!
   numberOfParticipants: BigInt!
   numberOfAttendance: BigInt!
+  participantType: String!
+  targetTokenAddress: Bytes!
+  targetTokenID: BigInt!
 }
 
 type Participant @entity {
