@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Box, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
+import PlofileCard from "./PlofileCard";
 import ButtonPrimary from "./ButtonPrimary";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import mypage_icon from "../public/mypage_icon.svg";
@@ -30,11 +31,11 @@ const modalStyle = {
   position: "absolute",
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -20%)",
+  transform: "translate(-50%, -25%)",
   width: 400,
   height: 600,
   maxWidth: "70%",
-  maxHeight: "90%",
+  maxHeight: "60%",
   backgroundColor: "rgba(217, 217, 217, 0.1)",
   border: 0,
   borderRadius: "15px",
@@ -49,7 +50,7 @@ const modalStyle = {
 /**
  * マイページボタン
  */
-const MypageButton = ({ setDone }) => {
+const MypageButton = ({ cardImage, plofileInfo }) => {
   // web3auth
   const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
   const [activeMypageModal, setActiveMypageModal] = useState(false);
@@ -99,17 +100,10 @@ const MypageButton = ({ setDone }) => {
                   animate={{ top: "30%" }}
                   exit={{ top: "-80%" }}
                 >
-                  <Typography
-                    variant="h6"
-                    component="h2"
-                    sx={{ color: "#FFF" }}
-                  >
-                    マイページモーダル？？？
-                  </Typography>
-                  <Typography sx={{ mt: 2, color: "#FFF" }}>
-                    Duis mollis, est non commodo luctus, nisi erat porttitor
-                    ligula.
-                  </Typography>
+                  <PlofileCard
+                    cardImage={cardImage}
+                    plofileInfo={plofileInfo}
+                  />
                   <ButtonPrimary
                     text="CLOSE"
                     onClickHandler={onMypageHandler}

@@ -5,7 +5,7 @@ import ButtonPrimary from "./ButtonPrimary";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import card_list_icon from "../public/card_list_icon.svg";
 import pin_mode_icon from "../public/pin_mode_icon.svg";
-import vector from "../public/vector.svg";
+import event_list_icon from "../public/event_list_icon.svg";
 
 const buttonStyle = {
   width: 50,
@@ -35,7 +35,7 @@ const modalStyle = {
   width: 400,
   height: 500,
   maxWidth: "70%",
-  maxHeight: "90%",
+  maxHeight: "60%",
   backgroundColor: "rgba(217, 217, 217, 0.1)",
   border: 0,
   borderRadius: "15px",
@@ -57,7 +57,7 @@ const ActionButtons = ({}) => {
   const [eventMode, setEventMode] = useState(false);
   const [activePinMode, setActivePinMode] = useState(false);
   const [activeCardList, setActiveCardList] = useState(false);
-  const onEventHandler = () => {
+  const onEventListHandler = () => {
     if (!eventMode) {
       setActiveCardList(false);
     }
@@ -88,7 +88,7 @@ const ActionButtons = ({}) => {
               maxWidth: "55%",
             }}
           >
-            <Grid container spacing={2} sx={{ margin: "auto" }}>
+            <Grid container spacing={0}>
               <Grid item xs={4}>
                 {eventMode && (
                   <>
@@ -99,8 +99,8 @@ const ActionButtons = ({}) => {
                           width: 25,
                           height: 25,
                         }}
-                        alt="vector"
-                        src={vector}
+                        alt="event_list_icon"
+                        src={event_list_icon}
                       />
                     </Box>
                   </>
@@ -153,12 +153,12 @@ const ActionButtons = ({}) => {
               maxWidth: "55%",
             }}
           >
-            <Grid container spacing={2} sx={{ margin: "auto" }}>
+            <Grid container spacing={0}>
               <Grid item xs={4}>
                 <Box
                   component={Button}
                   sx={buttonStyle}
-                  onClick={onEventHandler}
+                  onClick={onEventListHandler}
                 >
                   <Box
                     component="img"
@@ -166,8 +166,8 @@ const ActionButtons = ({}) => {
                       width: 25,
                       height: 25,
                     }}
-                    alt="vector"
-                    src={vector}
+                    alt="event_list_icon"
+                    src={event_list_icon}
                   />
                 </Box>
               </Grid>
@@ -259,7 +259,10 @@ const ActionButtons = ({}) => {
                     Duis mollis, est non commodo luctus, nisi erat porttitor
                     ligula.
                   </Typography>
-                  <ButtonPrimary text="CLOSE" onClickHandler={onEventHandler} />
+                  <ButtonPrimary
+                    text="CLOSE"
+                    onClickHandler={onEventListHandler}
+                  />
                 </Box>
               </>
             )}
