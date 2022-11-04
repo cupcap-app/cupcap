@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Box, TextField, Stack } from "@mui/material";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
@@ -6,6 +6,9 @@ import Loading from "./Loading";
 import ButtonPrimary from "./ButtonPrimary";
 import camera from "../public/camera.png";
 import { useENS } from "../hooks/useENS";
+import { useWeaveDB } from "../hooks/useWeaveDB";
+import { useArweave } from "../hooks/useArweave";
+import { ArweaveImage } from "react-arweave-image";
 
 /**
  * プロフィール入力モーダル
@@ -20,6 +23,12 @@ const ProfileFormModal = ({ setDone }) => {
     getProfile,
     registerProfile: registerProfileInENS,
   } = useENS();
+  const {
+    getProfile: getProfileFromWeaveDB,
+    getMyProfile: getMyProfileFromWeaveDB,
+    putProfile: putProfileInWeaveDB,
+  } = useWeaveDB();
+  const { downloadImage, downloadJSON, uploadFile, uploadJSON } = useArweave();
 
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -40,7 +49,11 @@ const ProfileFormModal = ({ setDone }) => {
     },
   });
 
-  const selectImage = () => {};
+  const selectImage = async (e) => {
+    const res = await uploadFile(e.target.files[0]);
+
+    console.log("file uploaded", res);
+  };
 
   const onClickSaveToENS = useCallback(
     async (data) => {
@@ -71,9 +84,48 @@ const ProfileFormModal = ({ setDone }) => {
     [getPrimaryDomain, walletAddress]
   );
 
-  const onClickSaveToWeaveDB = async (data) => {
-    console.log("click SaveToWeaveDB", data);
-  };
+  const onClickSaveToWeaveDB = useCallback(
+    async (data) => {
+      // console.log("My Profile", await getMyProfileFromWeaveDB());
+
+      const res = await uploadJSON({
+        hoge: "fuga",
+        piyo: "hoge",
+      });
+
+      console.log("!!res", res);
+
+      // await putProfileInWeaveDB({
+      //   avatar: data.avatar ?? "",
+      //   display_name: data.displayName,
+      //   com_github: data.github ?? "",
+      //   com_twitter: data.com_twitter ?? "",
+      //   com_discord: data.twitter ?? "",
+      //   org_telegram: data.telegram ?? "",
+      //   email: data.email ?? "",
+      //   url: data.url ?? "",
+      //   description: data.description ?? "",
+      // });
+    },
+    [walletAddress]
+  );
+
+  useEffect(() => {
+    (async () => {
+      // 画像
+      {
+        /* <ArweaveImage
+              hash={"_h4lzHk0BVNE8rhn_f9eg_iaQOYlmPvXTy-ab7yWBRU"}
+            /> */
+      }
+
+      // JSON
+      const data = await downloadJSON(
+        "6TxCk5h7IyuINMLmgQRBCpOON5Rff_mqix2Zm8WsMMs"
+      );
+      console.log("!!!!data", data);
+    })();
+  }, []);
 
   const validationRules = {
     displayName: {
@@ -257,7 +309,6 @@ const ProfileFormModal = ({ setDone }) => {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={true}
                     sx={{
                       color: "#FFF",
                       backgroundColor: "#251E2F",

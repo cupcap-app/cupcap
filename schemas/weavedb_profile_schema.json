@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "required": ["user_address", "created_at", "updated_at", "display_name"],
+  "properties": {
+    "user_address": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "number"
+    },
+    "updated_at": {
+      "type": "number"
+    },
+    "avatar": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "com_github": {
+      "type": "string"
+    },
+    "com_twitter": {
+      "type": "string"
+    },
+    "com_discord": {
+      "type": "string"
+    },
+    "org_telegram": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  }
+}

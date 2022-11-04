@@ -16,6 +16,10 @@ const config: HardhatUserConfig = {
       url: process.env.JSONRPC_URL ?? "",
       accounts: [...privateKeys],
     },
+    goerli: {
+      url: process.env.JSONRPC_URL ?? "",
+      accounts: [...privateKeys],
+    },
     polygon: {
       url: process.env.JSONRPC_URL ?? "https://polygon-rpc.com/",
       accounts: [...privateKeys],
