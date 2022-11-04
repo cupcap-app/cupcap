@@ -1,9 +1,21 @@
 {
   "type": "object",
-  "required": ["user_address", "created_at", "updated_at", "display_name"],
+  "required": [
+    "user_address",
+    "account_address",
+    "created_at",
+    "updated_at",
+    "display_name"
+  ],
   "properties": {
     "user_address": {
       "type": "string"
+    },
+    "account_address": {
+      "type": "string"
+    },
+    "design_card_id": {
+      "type": "number"
     },
     "created_at": {
       "type": "number"

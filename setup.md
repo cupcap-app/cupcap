@@ -46,7 +46,7 @@ yarn deploy
 ```bash
 $ cd scripts
 $ npm i
-$ npm run setup-weavedb-schema ../.wallets/wallet-mainnet.json FAtbnklNuedslUlQJiomKaBLjClpgPRor1iaKc-6Zp0
+$ npm run setup-weavedb-schema ../.wallets/wallet-mainnet.json AIYgFO1Bxn8tdqdgz1uA5tDdUtq0Ms2fYirOvXrS1nA
 ```
 
 React アプリの環境変数に gRPC サーバの URL とコントラクト TxID がセットされているのを確認する。
