@@ -5,8 +5,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "./IEventNFT.sol";
 import "./IPOAP.sol";
+
+interface IERC20OrERC721 {
+    function balanceOf(address _owner) external view returns (uint256);
+}
 
 // ERC721
 contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
@@ -19,6 +24,9 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         uint256 limitOfParticipants; // トータルの参加できる数
         uint256 numberOfParticipants; // 参加予定者合計
         uint256 numberOfAttendance; // 出席者合計
+        IEventNFT.ParticipantType participantType;
+        address targetTokenAddress;
+        uint256 targetTokenID;
     }
 
     // アカウントの参加ステータスを示すenum
@@ -39,7 +47,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         address indexed createdBy,
         uint256 startedAt,
         uint256 endedAt,
-        uint256 limitOfParticipants
+        uint256 limitOfParticipants,
+        string participantType,
+        address targetTokenAddress,
+        uint256 targetTokenID
     );
 
     event Participated(
@@ -93,6 +104,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
     }
 
     // View functions
+    function poap() public view override returns (IPOAP) {
+        return _poap;
+    }
+
     function tokenURI(uint256 tokenID)
         public
         view
@@ -103,6 +118,28 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         return super.tokenURI(tokenID);
     }
 
+    function participantTypeToString(IEventNFT.ParticipantType e)
+        public
+        view
+        returns (string memory)
+    {
+        if (e == IEventNFT.ParticipantType.Any) {
+            return "any";
+        }
+
+        if (e == IEventNFT.ParticipantType.ERC20) {
+            return "erc20";
+        }
+
+        if (e == IEventNFT.ParticipantType.ERC721) {
+            return "erc721";
+        }
+
+        if (e == IEventNFT.ParticipantType.ERC1155) {
+            return "erc1155";
+        }
+    }
+
     // External functions
     // イベントを作成する
     function createEvent(
@@ -110,7 +147,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         string memory resourceURI,
         uint256 limitOfParticipants,
         uint256 startedAt,
-        uint256 endedAt
+        uint256 endedAt,
+        IEventNFT.ParticipantType participantType,
+        address targetTokenContract,
+        uint256 targetTokenTypeID
     ) external override onlyOwner returns (uint256) {
         return
             _createEvent(
@@ -118,7 +158,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
                 resourceURI,
                 limitOfParticipants,
                 startedAt,
-                endedAt
+                endedAt,
+                participantType,
+                targetTokenContract,
+                targetTokenTypeID
             );
     }
 
@@ -161,7 +204,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
         string memory resourceURI,
         uint256 limitOfParticipants, // 0の場合は無制限
         uint256 startedAt, // 0の場合は現在時刻
-        uint256 endedAt // 0の場合は無制限
+        uint256 endedAt, // 0の場合は無制限
+        IEventNFT.ParticipantType participantType,
+        address targetTokenAddress,
+        uint256 targetTokenTypeID
     ) private returns (uint256) {
         // 0の場合はブロックタイムスタンプを開始時刻とする
         if (startedAt == 0) {
@@ -177,6 +223,47 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
             ERROR_PAST_ENDED_AT
         );
 
+        if (participantType == IEventNFT.ParticipantType.Any) {
+            require(
+                targetTokenAddress == address(0x0),
+                "targetTokenAddress must be zero"
+            );
+
+            require(targetTokenTypeID == 0, "targetTokenTypeID must be zero");
+        } else {
+            require(
+                targetTokenAddress != address(0x0),
+                "target token address is required"
+            );
+
+            if (
+                participantType == IEventNFT.ParticipantType.ERC20 ||
+                participantType == IEventNFT.ParticipantType.ERC721
+            ) {
+                // ERC1155ではないので, IDはゼロ
+                require(
+                    targetTokenTypeID == 0,
+                    "targetTokenTypeID must be zero"
+                );
+
+                IERC20OrERC721 token = IERC20OrERC721(targetTokenAddress);
+
+                // 呼び出しチェック
+                require(
+                    token.balanceOf(address(this)) >= 0,
+                    "contract doesn't support balanecOf"
+                );
+            } else if (participantType == IEventNFT.ParticipantType.ERC1155) {
+                IERC1155 token = IERC1155(targetTokenAddress);
+
+                // 呼び出しチェック
+                require(
+                    token.balanceOf(address(this), targetTokenTypeID) >= 0,
+                    "contract doesn't support balanceOf"
+                );
+            }
+        }
+
         uint256 tokenID = _getNewTokenID();
 
         // NFT作成とリソースの登録
@@ -189,7 +276,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
             endedAt: endedAt,
             limitOfParticipants: limitOfParticipants,
             numberOfParticipants: 0,
-            numberOfAttendance: 0
+            numberOfAttendance: 0,
+            participantType: participantType,
+            targetTokenAddress: targetTokenAddress,
+            targetTokenID: targetTokenTypeID
         });
 
         emit EventCreated(
@@ -197,7 +287,10 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
             host,
             startedAt,
             endedAt,
-            limitOfParticipants
+            limitOfParticipants,
+            participantTypeToString(participantType),
+            targetTokenAddress,
+            targetTokenTypeID
         );
 
         return tokenID;
@@ -218,8 +311,28 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
             ERROR_PARTICIPATED_ALREADY
         );
 
+        // トークン保有者専用の場合はチェック
+        if (
+            ev.participantType == IEventNFT.ParticipantType.ERC20 ||
+            ev.participantType == IEventNFT.ParticipantType.ERC721
+        ) {
+            IERC20OrERC721 token = IERC20OrERC721(ev.targetTokenAddress);
+
+            require(token.balanceOf(account) > 0, "account doesn't have token");
+        } else if (ev.participantType == IEventNFT.ParticipantType.ERC1155) {
+            IERC1155 token = IERC1155(ev.targetTokenAddress);
+
+            require(
+                token.balanceOf(account, ev.targetTokenID) > 0,
+                "account doesn't have token"
+            );
+        }
+
         // イベント終了前かチェック
-        require(ev.endedAt == 0  || block.timestamp <= ev.endedAt, ERROR_EVENT_ENDED_ALREADY);
+        require(
+            ev.endedAt == 0 || block.timestamp <= ev.endedAt,
+            ERROR_EVENT_ENDED_ALREADY
+        );
 
         // アカウントを追加した場合の合計参加予定/参加者数
         uint256 newTotal = ev.numberOfParticipants + ev.numberOfAttendance + 1;
@@ -230,9 +343,9 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
 
         uint256 newNumberOfParticipants = ev.numberOfParticipants + 1;
         uint256 newNumberOfAttendance = ev.numberOfAttendance;
-        ParticipationStatus newStatus =  _participations[eventID][account];
+        ParticipationStatus newStatus = _participations[eventID][account];
 
-        // 参加登録　
+        // 参加登録
         newStatus = ParticipationStatus.Participated;
         emit Participated(
             eventID,
@@ -249,7 +362,13 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
 
             uint256 poapID = _issuePOAP(eventID, account);
 
-            emit Attended(eventID, account, poapID, newNumberOfParticipants, newNumberOfAttendance);
+            emit Attended(
+                eventID,
+                account,
+                poapID,
+                newNumberOfParticipants,
+                newNumberOfAttendance
+            );
         }
 
         ev.numberOfParticipants = newNumberOfParticipants;
@@ -276,7 +395,13 @@ contract EventNFT is IEventNFT, ERC721, ERC721URIStorage, Ownable {
 
         uint256 poapID = _issuePOAP(eventID, account);
 
-        emit Attended(eventID, account, poapID, ev.numberOfParticipants, ev.numberOfAttendance);
+        emit Attended(
+            eventID,
+            account,
+            poapID,
+            ev.numberOfParticipants,
+            ev.numberOfAttendance
+        );
     }
 
     function _issuePOAP(uint256 eventID, address account)

@@ -85,6 +85,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EventNFT__factory>;
     getContractFactory(
+      name: "IERC20OrERC721",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20OrERC721__factory>;
+    getContractFactory(
       name: "IBusinessCard",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IBusinessCard__factory>;
@@ -195,6 +199,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.EventNFT>;
+    getContractAt(
+      name: "IERC20OrERC721",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20OrERC721>;
     getContractAt(
       name: "IBusinessCard",
       address: string,

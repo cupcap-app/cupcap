@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./EventNFT.sol";
 import "./IEventNFT.sol";
 import "./POAP.sol";
 import "./IBusinessCardDesign.sol";
@@ -45,20 +46,114 @@ contract CupCap is Ownable, Pausable {
         uint256 endedAt,
         bool shouldHostInclude
     ) external whenNotPaused returns (uint256) {
-        uint256 eventID = _eventNFT.createEvent(
-            host,
-            resourceURI,
-            limitOfParticipants,
-            startedAt,
-            endedAt
-        );
+        return
+            _createEvent(
+                host,
+                resourceURI,
+                limitOfParticipants,
+                startedAt,
+                endedAt,
+                shouldHostInclude,
+                IEventNFT.ParticipantType.Any,
+                address(0x0),
+                0
+            );
+    }
 
-        // TODO: なぜか動かない
-        if (shouldHostInclude) {
-            _eventNFT.participateEvent(eventID, host);
-        }
+    // 特定のERC20/ERC721保有者のみ参加可能なイベントを作成
+    function createEventForERC20Holder(
+        address host, // 主催者
+        string memory resourceURI, // JSONリソースのURI
+        uint256 limitOfParticipants, // 参加者の上限
+        uint256 startedAt,
+        uint256 endedAt,
+        bool shouldHostInclude,
+        address tokenAddress // トークンコントラクトのアドレス
+    ) external whenNotPaused returns (uint256) {
+        return
+            _createEvent(
+                host,
+                resourceURI,
+                limitOfParticipants,
+                startedAt,
+                endedAt,
+                shouldHostInclude,
+                IEventNFT.ParticipantType.ERC20,
+                tokenAddress,
+                0
+            );
+    }
 
-        return eventID;
+    function createEventForERC721Holder(
+        address host, // 主催者
+        string memory resourceURI, // JSONリソースのURI
+        uint256 limitOfParticipants, // 参加者の上限
+        uint256 startedAt,
+        uint256 endedAt,
+        bool shouldHostInclude,
+        address tokenAddress // トークンコントラクトのアドレス
+    ) external whenNotPaused returns (uint256) {
+        return
+            _createEvent(
+                host,
+                resourceURI,
+                limitOfParticipants,
+                startedAt,
+                endedAt,
+                shouldHostInclude,
+                IEventNFT.ParticipantType.ERC721,
+                tokenAddress,
+                0
+            );
+    }
+
+    // // 特定のERC1155保有者のみ参加可能なイベントを作成
+    function createEventForERC1155Holder(
+        address host, // 主催者
+        string memory resourceURI, // JSONリソースのURI
+        uint256 limitOfParticipants, // 参加者の上限
+        uint256 startedAt,
+        uint256 endedAt,
+        bool shouldHostInclude,
+        address tokenAddress, // トークンコントラクトのアドレス
+        uint256 tokenID
+    ) external whenNotPaused returns (uint256) {
+        return
+            _createEvent(
+                host,
+                resourceURI,
+                limitOfParticipants,
+                startedAt,
+                endedAt,
+                shouldHostInclude,
+                IEventNFT.ParticipantType.ERC1155,
+                tokenAddress,
+                tokenID
+            );
+    }
+
+    // 過去の特定のイベントに参加したことがある人のみ参加可能なイベントを作成
+    function createEventForPastParticipant(
+        address host, // 主催者
+        string memory resourceURI, // JSONリソースのURI
+        uint256 limitOfParticipants, // 参加者の上限
+        uint256 startedAt,
+        uint256 endedAt,
+        bool shouldHostInclude,
+        uint256 eventID
+    ) external whenNotPaused returns (uint256) {
+        return
+            _createEvent(
+                host,
+                resourceURI,
+                limitOfParticipants,
+                startedAt,
+                endedAt,
+                shouldHostInclude,
+                IEventNFT.ParticipantType.ERC1155,
+                address(_eventNFT.poap()),
+                eventID
+            );
     }
 
     // イベントに参加登録をする
@@ -167,5 +262,34 @@ contract CupCap is Ownable, Pausable {
         return
             keccak256(data).toEthSignedMessageHash().recover(signature) ==
             account;
+    }
+
+    function _createEvent(
+        address host,
+        string memory resourceURI,
+        uint256 limitOfParticipants,
+        uint256 startedAt,
+        uint256 endedAt,
+        bool shouldHostInclude,
+        IEventNFT.ParticipantType participantType,
+        address tokenAddress,
+        uint256 tokenID
+    ) private returns (uint256) {
+        uint256 eventID = _eventNFT.createEvent(
+            host,
+            resourceURI,
+            limitOfParticipants,
+            startedAt,
+            endedAt,
+            participantType,
+            tokenAddress,
+            tokenID
+        );
+
+        if (shouldHostInclude) {
+            _eventNFT.participateEvent(eventID, host);
+        }
+
+        return eventID;
     }
 }
