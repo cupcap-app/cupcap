@@ -22,3 +22,9 @@ $ npx hardhat run scripts/deploy.ts --network <NETWORK_NAME>
 ```
 
 ## 2. Graph のセットアップ
+
+`contracts/graph`に移動。
+
+`subgraph.yaml`の各コントラクトアドレスとチェーン名が適切かチェック。`networks.json`の各コントラクトアドレスが適切かチェック
+
+ブラウザから Graph の Hosted Service に移動し、プロジェクトを構築して`auth`と deploy を実行する。
