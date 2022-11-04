@@ -1,16 +1,16 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
     name: EventNFT
-    network: hardhat
+    network: mumbai
     source:
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      address: "0x057E10E1cDe0668C81887bD06C42e3168429Fe19"
       abi: EventNFT
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Event
@@ -28,13 +28,13 @@ dataSources:
           handler: handleAttended
   - kind: ethereum
     name: POAP
-    network: hardhat
+    network: mumbai
     source:
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      address: "0x10FFB3efA577e5CFB83FA11592984919106CC770"
       abi: POAP
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - POAP
@@ -47,13 +47,13 @@ dataSources:
           handler: handleIssued
   - kind: ethereum
     name: BusinessCardDesign
-    network: hardhat
+    network: mumbai
     source:
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      address: "0x49DeB896a39607904B3Db4E8Ae3c6d78DA8FbF30"
       abi: BusinessCardDesign
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - BusinessCardDesign
@@ -71,13 +71,13 @@ dataSources:
           handler: handleTransferBatch
   - kind: ethereum
     name: BusinessCard
-    network: hardhat
+    network: mumbai
     source:
-      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      address: "0xaA1c272925aF5D807595A91470eD9535055355E1"
       abi: BusinessCard
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - BusinessCard

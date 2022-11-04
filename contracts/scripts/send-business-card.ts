@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 const CUP_CAP_ADDRESS = process.env.CUPCAP_ADDRESS;
 
 async function main() {
-  const [_sender, target, target2] = await ethers.getSigners();
+  const [_sender, target] = await ethers.getSigners();
 
   const cupCap = (await ethers.getContractFactory("CupCap")).attach(
     CUP_CAP_ADDRESS!
@@ -11,7 +11,7 @@ async function main() {
 
   const tx = await cupCap.sendBusinessCard(
     // 受け取り主
-    target2.address
+    target.address
   );
 
   await tx.wait();
