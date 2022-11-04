@@ -12,6 +12,14 @@ import EventMarker from "../components/EventMarker";
 import ActionButtons from "../components/ActionButtons";
 import MypageButton from "../components/MypageButton";
 import CalendarTabs from "../components/CalendarTabs";
+import hologram_front from "../public/hologram_card_front.png";
+import hologram_back from "../public/hologram_card_back.png";
+import email_icon from "../public/email_icon.png";
+import discord_icon from "../public/discord_icon.png";
+import github_icon from "../public/github_icon.png";
+import url_icon from "../public/url_icon.png";
+import telegram_icon from "../public/telegram_icon.png";
+import twitter_icon from "../public/twitter_icon.png";
 
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1;
@@ -24,8 +32,8 @@ const STATUS_DONE = "STATUS_DONE";
 
 const InitialForm = (props) => {
   const { provider } = props;
-  const [doneProfileSetting, setProfileSettingDone] = useState(false);
-  const [doneCardSetting, setCardSettingDone] = useState(false);
+  const [doneProfileSetting, setProfileSettingDone] = useState(true);
+  const [doneCardSetting, setCardSettingDone] = useState(true);
 
   const status = useMemo(() => {
     if (!provider) {
@@ -62,6 +70,31 @@ const Map = () => {
     lat: 35.69575,
     lng: 139.77521,
   });
+  // プロフィール情報
+  const [plofileInfo, setPlofileInfo] = useState({
+    avater: null,
+    displayName: null,
+    discription: null,
+    url: null,
+    email: null,
+    discord: null,
+    telegram: null,
+    github: null,
+    twitter: null,
+  });
+  // 名刺デザイン画像
+  const [cardImage, setCardImage] = useState({
+    front: null,
+    back: null,
+    link: {
+      url: null,
+      email: null,
+      discord: null,
+      telegram: null,
+      github: null,
+      twitter: null,
+    },
+  });
 
   // イベント開催地List
   const [eventInfoList, setEventInfoList] = useState([]);
@@ -91,8 +124,38 @@ const Map = () => {
       alert("Sorry, Geolocation is not supported by this browser."); // Alert is browser does not support geolocation
     }
   };
+  // 自分の名刺デザイン取得
+  const getCardInfo = () => {
+    //TODO 名刺デザイン取得
+    setCardImage({
+      front: hologram_front,
+      back: hologram_back,
+      link: {
+        url: url_icon,
+        email: email_icon,
+        discord: discord_icon,
+        telegram: telegram_icon,
+        github: github_icon,
+        twitter: twitter_icon,
+      },
+    });
+    // TODO プロフィール情報取得
+    setPlofileInfo({
+      avater: "https://live---metadata-5covpqijaa-uc.a.run.app/images/6316",
+      displayName: "yusaka.eth",
+      discription:
+        "crypto botter / full stack engineer / dydx grants / TicketMe engineer @ticketme_yeah",
+      url: "https://www.pedro.tokyo/",
+      email: "yusuke@ticketme.jp",
+      discord: "yusaka#7114",
+      telegram: null,
+      github: "yusakapon",
+      twitter: "yusaka_btc",
+    });
+  };
   // イベント取得
   const getEventPosition = () => {
+    // TODO イベント取得
     // TODO テスト用　現在地を基準に3ヶ所設定
     setEventInfoList([
       {
@@ -139,6 +202,7 @@ const Map = () => {
 
   useEffect(() => {
     getPosition();
+    getCardInfo();
   }, []);
 
   return (
@@ -159,7 +223,7 @@ const Map = () => {
         >
           <CalendarTabs setSelectedDate={setSelectedDate} />
           <ActionButtons setMode={setMode} />
-          <MypageButton />
+          <MypageButton cardImage={cardImage} plofileInfo={plofileInfo} />
           <InitialForm provider={provider} />
 
           <Marker
