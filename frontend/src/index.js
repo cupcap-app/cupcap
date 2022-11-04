@@ -4,13 +4,18 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Web3AuthProvider } from "./hooks/useWeb3Auth";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const client = new QueryClient();
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
-  <Web3AuthProvider>
-    <App />
-  </Web3AuthProvider>
+  <QueryClientProvider client={client}>
+    <Web3AuthProvider>
+      <App />
+    </Web3AuthProvider>
+  </QueryClientProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

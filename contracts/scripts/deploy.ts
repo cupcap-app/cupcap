@@ -16,6 +16,7 @@ async function main() {
   console.log("deploying EventNFT ...");
   const eventNFTFactory = await ethers.getContractFactory("EventNFT");
   const eventNFT = await eventNFTFactory.deploy(poap.address);
+  await eventNFT.deployed();
   console.log(
     `deployed EventNFT address: ${eventNFT.address}, txHash: ${eventNFT.deployTransaction.hash}\n`
   );
@@ -28,6 +29,7 @@ async function main() {
   const businessCardDesign = await BusinessCardDesignFactory.deploy(
     STORAGE_BASE_URI
   );
+  await businessCardDesign.deployed();
   console.log(
     `deployed BusinessCardDesign address: ${businessCardDesign.address}, txHash: ${businessCardDesign.deployTransaction.hash}\n`
   );
@@ -36,6 +38,7 @@ async function main() {
   console.log("deploying BusinessCard...");
   const businessCardFactory = await ethers.getContractFactory("BusinessCard");
   const businessCard = await businessCardFactory.deploy();
+  await businessCard.deployed();
   console.log(
     `deployed BusinessCard address: ${businessCard.address}, txHash: ${businessCard.deployTransaction.hash}\n`
   );
@@ -48,16 +51,17 @@ async function main() {
     businessCardDesign.address,
     businessCard.address
   );
+  await cupCap.deployed();
   console.log(
     `deployed CupCap address: ${cupCap.address}, txHash: ${cupCap.deployTransaction.hash}\n`
   );
 
   // Move Owner
   console.log("Moving ownerships to CupCap\n");
-  await poap.transferOwnership(eventNFT.address);
-  await eventNFT.transferOwnership(cupCap.address);
-  await businessCardDesign.transferOwnership(cupCap.address);
-  await businessCard.transferOwnership(cupCap.address);
+  await (await poap.transferOwnership(eventNFT.address)).wait();
+  await (await eventNFT.transferOwnership(cupCap.address)).wait();
+  await (await businessCardDesign.transferOwnership(cupCap.address)).wait();
+  await (await await businessCard.transferOwnership(cupCap.address)).wait();
 
   console.log("Setup is Done!!");
   console.log(`POAP: ${poap.address}`);

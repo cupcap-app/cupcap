@@ -9,6 +9,7 @@ import { useENS } from "../hooks/useENS";
 import { useWeaveDB } from "../hooks/useWeaveDB";
 import { useArweave } from "../hooks/useArweave";
 import { ArweaveImage } from "react-arweave-image";
+import { useBusinessCardBySender } from "../hooks/useGraph";
 
 /**
  * プロフィール入力モーダル
