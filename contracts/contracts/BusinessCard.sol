@@ -53,6 +53,7 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
     function setProfileResource(address account, string memory resourceURI)
         external
         override
+        onlyOwner
     {
         uint256 tokenID = _obtainTokenID(account);
 
@@ -60,7 +61,7 @@ contract BusinessCard is IBusinessCard, ERC1155, ERC1155URIStorage, Ownable {
     }
 
     // アカウントの名刺を新たに発行する
-    function mint(address from, address to) external override {
+    function mint(address from, address to) external override onlyOwner {
         uint256 tokenID = _obtainTokenID(from);
 
         _mint(to, tokenID, 1, "");
