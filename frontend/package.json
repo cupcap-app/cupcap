@@ -26,6 +26,7 @@
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
     "react-slick": "^0.29.0",
+    "rimraf": "^3.0.2",
     "slick-carousel": "^1.8.1",
     "web-vitals": "^2.1.4"
   },
@@ -33,7 +34,8 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "copy-abi": "rimraf ./src/abis/cupcap && cp -r ../contracts/artifacts/contracts ./src/abis/cupcap"
   },
   "eslintConfig": {
     "extends": [
