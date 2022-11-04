@@ -1,0 +1,20 @@
+{
+  "allow create": {
+    "==": [
+      { "var": "request.auth.signer" },
+      { "var": "resource.newData.user_address" }
+    ]
+  },
+  "allow update": {
+    "==": [
+      { "var": "request.auth.signer" },
+      { "var": "resource.newData.user_address" }
+    ]
+  },
+  "allow delete": {
+    "==": [
+      { "var": "request.auth.signer" },
+      { "var": "resource.newData.user_address" }
+    ]
+  }
+}

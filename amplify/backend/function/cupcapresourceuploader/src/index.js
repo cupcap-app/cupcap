@@ -35,6 +35,25 @@ const uploadFile = async (file) => {
     },
     key
   );
+  transaction.addTag("Content-Type", file.type);
+
+  await arweaveClient.transactions.sign(transaction, key);
+  await arweaveClient.transactions.post(transaction);
+  await arweaveClient.transactions.getData(transaction.id);
+
+  return transaction.id;
+};
+
+const uploadJSON = async (data) => {
+  const key = await fetchArweaveKey();
+
+  const transaction = await arweaveClient.createTransaction(
+    {
+      data: data,
+    },
+    key
+  );
+  transaction.addTag("Content-Type", "application/json");
 
   await arweaveClient.transactions.sign(transaction, key);
   await arweaveClient.transactions.post(transaction);
@@ -47,26 +66,89 @@ const uploadFile = async (file) => {
  * @type {import('@types/aws-lambda').APIGatewayProxyHandler}
  */
 exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      body: "ok",
+      headers: {
+        // FIXME: CORS対策、後で必ず直す
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "POST,OPTIONS,PATCH",
+        "Access-Control-Allow-Methods": "content-type",
+      },
+    };
+  }
+
   if (event.httpMethod != "POST") {
     return {
       statusCode: 500,
       body: "invalid_method",
+      headers: {
+        // FIXME: CORS対策、後で必ず直す
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "POST,OPTIONS,PATCH",
+        "Access-Control-Allow-Methods": "content-type",
+      },
     };
   }
 
-  const parsedData = await parser.parse(event);
+  // files
+  try {
+    const parsedData = await parser.parse(event);
+    if (parsedData && parsedData.files && parsedData.files.length >= 0) {
+      const results = await Promise.all(
+        parsedData.files.map((f) => uploadFile(f))
+      );
 
-  if (!parsedData.files || parsedData.files.length === 0) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          type: "files",
+          ids: results,
+        }),
+        headers: {
+          // FIXME: CORS対策、後で必ず直す
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "POST,OPTIONS,PATCH",
+          "Access-Control-Allow-Methods": "content-type",
+        },
+      };
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+  if (event.body) {
+    const id = await uploadJSON(event.body);
+
     return {
-      statusCode: 500,
-      body: "no_files",
+      statusCode: 200,
+      body: JSON.stringify({
+        type: "json",
+        ids: [id],
+      }),
+      headers: {
+        // FIXME: CORS対策、後で必ず直す
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "POST,OPTIONS,PATCH",
+        "Access-Control-Allow-Methods": "content-type",
+      },
     };
   }
-
-  const results = await Promise.all(parsedData.files.map((f) => uploadFile(f)));
 
   return {
-    statusCode: 200,
-    body: JSON.stringify(results),
+    statusCode: 500,
+    body: "empty",
+    headers: {
+      // FIXME: CORS対策、後で必ず直す
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "POST,OPTIONS,PATCH",
+      "Access-Control-Allow-Methods": "content-type",
+    },
   };
 };
