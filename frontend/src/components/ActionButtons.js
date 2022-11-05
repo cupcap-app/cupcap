@@ -50,7 +50,7 @@ const modalStyle = {
 /**
  * アクションボタン
  */
-const ActionButtons = ({}) => {
+const ActionButtons = ({ setIsPinMode }) => {
   // web3auth
   const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +65,7 @@ const ActionButtons = ({}) => {
   };
   const onPinModeHandler = () => {
     setActivePinMode(!activePinMode);
+    setIsPinMode(!activePinMode);
   };
   const onCardListHandler = () => {
     if (!activeCardList) {
