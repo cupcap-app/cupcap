@@ -33,8 +33,8 @@ const STATUS_DONE = "STATUS_DONE";
 
 const InitialForm = (props) => {
   const { provider } = props;
-  const [doneProfileSetting, setProfileSettingDone] = useState(true);
-  const [doneCardSetting, setCardSettingDone] = useState(true);
+  const [doneProfileSetting, setProfileSettingDone] = useState(false);
+  const [doneCardSetting, setCardSettingDone] = useState(false);
 
   const status = useMemo(() => {
     if (!provider) {
