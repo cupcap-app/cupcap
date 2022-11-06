@@ -1,7 +1,16 @@
-import { Box, Link, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Button, Link, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
+import { useWeb3Auth } from "../hooks/useWeb3Auth";
+import QRcode from "./QRcode";
 
 const PlofileCard = ({ cardImage, plofileInfo }) => {
+  const { provider, walletAddress } = useWeb3Auth();
+  const [activeQRcodeModal, setActiveQRcodeModal] = useState(false);
+  const onClickQRcode = () => {
+    setActiveQRcodeModal(!activeQRcodeModal);
+  };
+
   return (
     <>
       <Box sx={{ position: "relative" }}>
@@ -183,6 +192,36 @@ const PlofileCard = ({ cardImage, plofileInfo }) => {
               src={cardImage.link.twitter}
             />
           </Link>
+        )}
+        {activeQRcodeModal ? (
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, 0%)",
+              zIndex: 100,
+            }}
+          >
+            <Button onClick={onClickQRcode}>
+              <QRcode width={300} text={`${walletAddress}`} />
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <Box
+              sx={{
+                width: "10%",
+                position: "absolute",
+                left: "8%",
+                top: "52%",
+              }}
+            >
+              <Button onClick={onClickQRcode}>
+                <QRcode width={50} text={`${walletAddress}`} />
+              </Button>
+            </Box>
+          </>
         )}
         <AnimatePresence>
           <Box
