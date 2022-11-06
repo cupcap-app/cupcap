@@ -2,10 +2,23 @@ import React, { useState } from "react";
 import { Button, Box, Grid, Modal, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import ButtonPrimary from "./ButtonPrimary";
+import PlofileCardBack from "./PlofileCardBack";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import card_list_icon from "../public/card_list_icon.svg";
 import pin_mode_icon from "../public/pin_mode_icon.svg";
 import event_list_icon from "../public/event_list_icon.svg";
+import classic_front from "../public/classic_card_front.png";
+import classic_back from "../public/classic_card_back.png";
+import cupcat_front from "../public/cupcat_card_front.png";
+import cupcat_back from "../public/cupcat_card_back.png";
+import hologram_front from "../public/hologram_card_front.png";
+import hologram_back from "../public/hologram_card_back.png";
+import email_icon from "../public/email_icon.png";
+import discord_icon from "../public/discord_icon.png";
+import github_icon from "../public/github_icon.png";
+import url_icon from "../public/url_icon.png";
+import telegram_icon from "../public/telegram_icon.png";
+import twitter_icon from "../public/twitter_icon.png";
 
 const buttonStyle = {
   width: 50,
@@ -224,12 +237,64 @@ const ActionButtons = ({ setIsPinMode }) => {
                     component="h2"
                     sx={{ color: "#FFF" }}
                   >
-                    カードリスト？？？
+                    Card List
                   </Typography>
-                  <Typography sx={{ mt: 2, color: "#FFF" }}>
-                    Duis mollis, est non commodo luctus, nisi erat porttitor
-                    ligula.
-                  </Typography>
+                  <Box>
+                    <PlofileCardBack
+                      cardImage={{
+                        front: hologram_front,
+                        back: hologram_back,
+                        link: {
+                          url: url_icon,
+                          email: email_icon,
+                          discord: discord_icon,
+                          telegram: telegram_icon,
+                          github: github_icon,
+                          twitter: twitter_icon,
+                        },
+                        color: "#FFF",
+                      }}
+                      plofileInfo={{
+                        avater:
+                          "https://live---metadata-5covpqijaa-uc.a.run.app/images/6316",
+                        displayName: "cupcap.eth",
+                        discription: "cupcap is ...",
+                        url: "https://www.pedro.tokyo/",
+                        email: "cupcap.crypto@gmail.com",
+                        discord: "yusaka#7114",
+                        telegram: null,
+                        github: "yusakapon",
+                        twitter: "yusaka_btc",
+                      }}
+                    />
+                    <PlofileCardBack
+                      cardImage={{
+                        front: cupcat_front,
+                        back: cupcat_back,
+                        link: {
+                          url: url_icon,
+                          email: email_icon,
+                          discord: discord_icon,
+                          telegram: telegram_icon,
+                          github: github_icon,
+                          twitter: twitter_icon,
+                        },
+                        color: "#000",
+                      }}
+                      plofileInfo={{
+                        avater:
+                          "https://live---metadata-5covpqijaa-uc.a.run.app/images/5316",
+                        displayName: "xxx.eth",
+                        discription: "xxx is ...",
+                        url: "https://www.pedro.tokyo/",
+                        email: "cupcap.crypto@gmail.com",
+                        discord: "yusaka#7114",
+                        telegram: null,
+                        github: "yusakapon",
+                        twitter: "yusaka_btc",
+                      }}
+                    />
+                  </Box>
                   <ButtonPrimary
                     text="CLOSE"
                     onClickHandler={onCardListHandler}
@@ -254,7 +319,7 @@ const ActionButtons = ({ setIsPinMode }) => {
                     component="h2"
                     sx={{ color: "#FFF" }}
                   >
-                    イベントモーダル？？？
+                    EventList
                   </Typography>
                   <Typography sx={{ mt: 2, color: "#FFF" }}>
                     Duis mollis, est non commodo luctus, nisi erat porttitor

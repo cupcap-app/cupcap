@@ -12,7 +12,6 @@ const PlofileCardBack = ({ cardImage, plofileInfo }) => {
           alt="backImage"
           src={cardImage.back}
         />
-
         {plofileInfo.avater && (
           <Box
             component="img"
@@ -37,7 +36,11 @@ const PlofileCardBack = ({ cardImage, plofileInfo }) => {
             }}
           >
             <Typography
-              sx={{ color: "#FFF", fontSize: "18px", fontWeight: "bold" }}
+              sx={{
+                color: cardImage.color,
+                fontSize: "18px",
+                fontWeight: "bold",
+              }}
             >
               {plofileInfo.displayName}
             </Typography>
@@ -54,7 +57,7 @@ const PlofileCardBack = ({ cardImage, plofileInfo }) => {
           >
             <Typography
               sx={{
-                color: "#FFF",
+                color: cardImage.color,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",

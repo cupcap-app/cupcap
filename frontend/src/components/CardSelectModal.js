@@ -90,15 +90,15 @@ const CardSelectModal = ({ setDone }) => {
                         github: github_icon,
                         twitter: twitter_icon,
                       },
+                      color: "#FFF",
                     }}
                     plofileInfo={{
                       avater:
                         "https://live---metadata-5covpqijaa-uc.a.run.app/images/6316",
-                      displayName: "yusaka.eth",
-                      discription:
-                        "crypto botter / full stack engineer / dydx grants / TicketMe engineer @ticketme_yeah",
+                      displayName: "cupcap.eth",
+                      discription: "cupcap is ...",
                       url: "https://www.pedro.tokyo/",
-                      email: "yusuke@ticketme.jp",
+                      email: "cupcap.crypto@gmail.com",
                       discord: "yusaka#7114",
                       telegram: null,
                       github: "yusakapon",

@@ -37,6 +37,10 @@ const EventMarker = ({ eventInfo }) => {
     console.log("file uploaded", res);
   };
 
+  const onClickReserveHandler = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <Marker
@@ -111,7 +115,10 @@ const EventMarker = ({ eventInfo }) => {
               </Typography>
               <Typography sx={{ mt: 2, color: "#FFF" }}>Participant</Typography>
               <Typography sx={{ mt: 2, color: "#FFF" }}>Location</Typography>
-              <ButtonPrimary text="Reserve" />
+              <ButtonPrimary
+                text="Reserve"
+                onClickHandler={onClickReserveHandler}
+              />
             </Box>
           </>
         )}
