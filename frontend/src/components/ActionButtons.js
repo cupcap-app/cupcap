@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Box, Grid, Modal, Typography } from "@mui/material";
+import { Button, Box, Grid, Divider, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import ButtonPrimary from "./ButtonPrimary";
 import PlofileCardBack from "./PlofileCardBack";
@@ -321,10 +321,43 @@ const ActionButtons = ({ setIsPinMode }) => {
                   >
                     EventList
                   </Typography>
-                  <Typography sx={{ mt: 2, color: "#FFF" }}>
-                    Duis mollis, est non commodo luctus, nisi erat porttitor
-                    ligula.
+                  {/* TODO 正式なイベントを設定 */}
+                  <Divider sx={{ my: 1 }} />
+                  <Typography sx={{ color: "#FFF" }}>
+                    テストイベントA
                   </Typography>
+                  <Typography sx={{ color: "#FFF" }}>
+                    2022/11/06 11:00
+                  </Typography>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography sx={{ color: "#FFF" }}>
+                    テストイベントB
+                  </Typography>
+                  <Typography sx={{ color: "#FFF" }}>
+                    2022/11/06 13:00
+                  </Typography>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography sx={{ color: "#FFF" }}>
+                    テストイベントC
+                  </Typography>
+                  <Typography sx={{ color: "#FFF" }}>
+                    2022/11/06 14:00
+                  </Typography>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography sx={{ color: "#FFF" }}>
+                    テストイベントD
+                  </Typography>
+                  <Typography sx={{ color: "#FFF" }}>
+                    2022/11/06 14:00
+                  </Typography>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography sx={{ color: "#FFF" }}>
+                    テストイベントE
+                  </Typography>
+                  <Typography sx={{ color: "#FFF" }}>
+                    2022/11/06 15:00
+                  </Typography>
+                  <Divider sx={{ my: 1 }} />
                   <ButtonPrimary
                     text="CLOSE"
                     onClickHandler={onEventListHandler}
