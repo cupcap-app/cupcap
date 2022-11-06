@@ -32,6 +32,7 @@ const ProfileFormModal = ({ setDone }) => {
   const { downloadImage, downloadJSON, uploadFile, uploadJSON } = useArweave();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadedImageHash, setUploadedImageHash] = useState();
   const {
     control,
     handleSubmit,
@@ -52,8 +53,8 @@ const ProfileFormModal = ({ setDone }) => {
 
   const selectImage = async (e) => {
     const res = await uploadFile(e.target.files[0]);
-
     console.log("file uploaded", res);
+    setUploadedImageHash(res);
   };
 
   const onClickSaveToENS = useCallback(
@@ -88,14 +89,11 @@ const ProfileFormModal = ({ setDone }) => {
   const onClickSaveToWeaveDB = useCallback(
     async (data) => {
       // console.log("My Profile", await getMyProfileFromWeaveDB());
-
-      const res = await uploadJSON({
-        hoge: "fuga",
-        piyo: "hoge",
-      });
-
-      console.log("!!res", res);
-
+      // const res = await uploadJSON({
+      //   hoge: "fuga",
+      //   piyo: "hoge",
+      // });
+      // console.log("!!res", res);
       // await putProfileInWeaveDB({
       //   avatar: data.avatar ?? "",
       //   display_name: data.displayName,
@@ -107,6 +105,7 @@ const ProfileFormModal = ({ setDone }) => {
       //   url: data.url ?? "",
       //   description: data.description ?? "",
       // });
+      setDone(true);
     },
     [walletAddress]
   );
@@ -154,32 +153,50 @@ const ProfileFormModal = ({ setDone }) => {
             }}
           >
             <Box sx={{ p: 3 }}>
-              <Button
-                variant="outlined"
-                component="label"
-                sx={{
-                  borderColor: "rgba(255, 255, 255, 0.1)!important",
-                  borderRadius: "15px",
-                  width: 200,
-                  height: 200,
-                  display: "block",
-                  m: "auto",
-                }}
-              >
-                <input type="file" hidden onChange={selectImage} />
-                <Box
-                  component="img"
-                  sx={{
-                    width: 50,
-                    height: 50,
-                    display: "block",
-                    m: "auto",
-                    mt: "65px",
-                  }}
-                  alt="camera"
-                  src={camera}
-                />
-              </Button>
+              {uploadedImageHash ? (
+                <>
+                  <Box
+                    component="img"
+                    sx={{
+                      width: 200,
+                      display: "block",
+                      m: "auto",
+                    }}
+                    alt="uploadedImage"
+                    src={`https://arweave.net/${uploadedImageHash}`}
+                  />
+                  {/* <ArweaveImage hash={uploadedImageHash} className="w-24" /> */}
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    sx={{
+                      borderColor: "rgba(255, 255, 255, 0.1)!important",
+                      borderRadius: "15px",
+                      width: 200,
+                      height: 200,
+                      display: "block",
+                      m: "auto",
+                    }}
+                  >
+                    <input type="file" hidden onChange={selectImage} />
+                    <Box
+                      component="img"
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        display: "block",
+                        m: "auto",
+                        mt: "65px",
+                      }}
+                      alt="camera"
+                      src={camera}
+                    />
+                  </Button>
+                </>
+              )}
             </Box>
             <Box sx={{ m: 2 }}>
               <Stack
