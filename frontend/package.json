@@ -22,6 +22,7 @@
     "framer-motion": "^7.6.4",
     "graphql-request": "^5.0.0",
     "localforage": "^1.10.0",
+    "next-qrcode": "^2.2.2",
     "ramda": "^0.28.0",
     "react": "^18.2.0",
     "react-arweave-image": "^0.2.1",
