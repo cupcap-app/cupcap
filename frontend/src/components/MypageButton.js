@@ -1,10 +1,20 @@
-import React, { useState } from "react";
-import { Button, Box, Typography } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Button, Box, ImageList, ImageListItem } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
+import { Network, Alchemy } from "alchemy-sdk";
 import PlofileCard from "./PlofileCard";
 import ButtonPrimary from "./ButtonPrimary";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import mypage_icon from "../public/mypage_icon.svg";
+
+const settings = {
+  apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
+  network:
+    process.env.REACT_APP_NETWORK === "testnet"
+      ? Network.MATIC_MUMBAI
+      : Network.MATIC_MAINNET,
+};
+const alchemy = new Alchemy(settings);
 
 const buttonStyle = {
   position: "absolute",
@@ -52,12 +62,27 @@ const modalStyle = {
  */
 const MypageButton = ({ cardImage, plofileInfo }) => {
   // web3auth
-  const { provider, ensTextRecord, changeNetwork } = useWeb3Auth();
+  const { provider, walletAddress } = useWeb3Auth();
   const [activeMypageModal, setActiveMypageModal] = useState(false);
+  const [ownedNfts, setOwnedNfts] = useState([]);
 
   const onMypageHandler = () => {
     setActiveMypageModal(!activeMypageModal);
   };
+
+  const fetchNFTs = async () => {
+    // TODO 100個以上持ってた場合のページネーション
+    // TODO アドレス変更
+    const nftsForOwner = await alchemy.nft.getNftsForOwner("yusaka.eth");
+    console.log(nftsForOwner);
+    setOwnedNfts(nftsForOwner.ownedNfts);
+  };
+
+  useEffect(() => {
+    if (walletAddress) {
+      fetchNFTs();
+    }
+  }, [walletAddress]);
 
   return (
     <>
@@ -104,6 +129,26 @@ const MypageButton = ({ cardImage, plofileInfo }) => {
                     cardImage={cardImage}
                     plofileInfo={plofileInfo}
                   />
+                  <ImageList
+                    sx={{
+                      width: "80%",
+                      maxHeight: "50%",
+                      margin: "auto",
+                      mt: 5,
+                    }}
+                    cols={3}
+                    gap={20}
+                  >
+                    {ownedNfts.map((nft, index) => (
+                      <ImageListItem key={nft.rawMetadata.image}>
+                        <img
+                          src={nft.rawMetadata.image}
+                          srcSet={nft.rawMetadata.image}
+                          loading="lazy"
+                        />
+                      </ImageListItem>
+                    ))}
+                  </ImageList>
                   <ButtonPrimary
                     text="CLOSE"
                     onClickHandler={onMypageHandler}

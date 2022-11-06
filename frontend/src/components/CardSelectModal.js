@@ -6,10 +6,19 @@ import "slick-carousel/slick/slick-theme.css";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "./Loading";
 import ButtonPrimary from "./ButtonPrimary";
+import PlofileCardBack from "./PlofileCardBack";
 import hologram_front from "../public/hologram_card_front.png";
 import hologram_back from "../public/hologram_card_back.png";
 import classic_front from "../public/classic_card_front.png";
 import classic_back from "../public/classic_card_back.png";
+import cupcat_front from "../public/cupcat_card_front.png";
+import cupcat_back from "../public/cupcat_card_back.png";
+import email_icon from "../public/email_icon.png";
+import discord_icon from "../public/discord_icon.png";
+import github_icon from "../public/github_icon.png";
+import url_icon from "../public/url_icon.png";
+import telegram_icon from "../public/telegram_icon.png";
+import twitter_icon from "../public/twitter_icon.png";
 
 /**
  * カード選択モーダル
@@ -62,50 +71,117 @@ const CardSelectModal = ({ setDone }) => {
                   <Box
                     component="img"
                     sx={{
-                      width: 300,
-                      height: 180,
+                      width: "100%",
                       display: "block",
                       m: "auto",
                     }}
                     alt="hologram_front"
                     src={hologram_front}
                   />
-                  <Box
-                    component="img"
-                    sx={{
-                      width: 300,
-                      height: 180,
-                      display: "block",
-                      m: "auto",
-                      mb: 5,
+                  <PlofileCardBack
+                    cardImage={{
+                      front: hologram_front,
+                      back: hologram_back,
+                      link: {
+                        url: url_icon,
+                        email: email_icon,
+                        discord: discord_icon,
+                        telegram: telegram_icon,
+                        github: github_icon,
+                        twitter: twitter_icon,
+                      },
+                      color: "#FFF",
                     }}
-                    alt="hologram_back"
-                    src={hologram_back}
+                    plofileInfo={{
+                      avater:
+                        "https://live---metadata-5covpqijaa-uc.a.run.app/images/6316",
+                      displayName: "cupcap.eth",
+                      discription: "cupcap is ...",
+                      url: "https://www.pedro.tokyo/",
+                      email: "cupcap.crypto@gmail.com",
+                      discord: "yusaka#7114",
+                      telegram: null,
+                      github: "yusakapon",
+                      twitter: "yusaka_btc",
+                    }}
                   />
                 </Box>
                 <Box>
                   <Box
                     component="img"
                     sx={{
-                      width: 300,
-                      height: 180,
+                      width: "100%",
                       display: "block",
                       m: "auto",
                     }}
                     alt="classic_front"
                     src={classic_front}
                   />
+                  <PlofileCardBack
+                    cardImage={{
+                      front: classic_front,
+                      back: classic_back,
+                      link: {
+                        url: url_icon,
+                        email: email_icon,
+                        discord: discord_icon,
+                        telegram: telegram_icon,
+                        github: github_icon,
+                        twitter: twitter_icon,
+                      },
+                      color: "#000",
+                    }}
+                    plofileInfo={{
+                      avater:
+                        "https://live---metadata-5covpqijaa-uc.a.run.app/images/6316",
+                      displayName: "cupcap.eth",
+                      discription: "cupcap is ...",
+                      url: "https://www.pedro.tokyo/",
+                      email: "cupcap.crypto@gmail.com",
+                      discord: "yusaka#7114",
+                      telegram: null,
+                      github: "yusakapon",
+                      twitter: "yusaka_btc",
+                    }}
+                  />
+                </Box>
+                <Box>
                   <Box
                     component="img"
                     sx={{
-                      width: 300,
-                      height: 180,
+                      width: "100%",
                       display: "block",
                       m: "auto",
-                      mb: 5,
                     }}
-                    alt="classic_back"
-                    src={classic_back}
+                    alt="cupcat_front"
+                    src={cupcat_front}
+                  />
+                  <PlofileCardBack
+                    cardImage={{
+                      front: cupcat_front,
+                      back: cupcat_back,
+                      link: {
+                        url: url_icon,
+                        email: email_icon,
+                        discord: discord_icon,
+                        telegram: telegram_icon,
+                        github: github_icon,
+                        twitter: twitter_icon,
+                      },
+                      color: "#000",
+                    }}
+                    plofileInfo={{
+                      avater:
+                        "https://live---metadata-5covpqijaa-uc.a.run.app/images/6316",
+                      displayName: "cupcap.eth",
+                      discription: "cupcap is ...",
+                      url: "https://www.pedro.tokyo/",
+                      email: "cupcap.crypto@gmail.com",
+                      discord: "yusaka#7114",
+                      telegram: null,
+                      github: "yusakapon",
+                      twitter: "yusaka_btc",
+                    }}
                   />
                 </Box>
               </Slider>

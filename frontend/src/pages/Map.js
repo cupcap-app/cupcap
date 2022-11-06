@@ -4,6 +4,7 @@ import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { use100vh } from "react-div-100vh";
 import mapStyles from "../utils/mapStyles";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
+import { useEvents, useEventInTimeRange } from "../hooks/useGraph";
 import ConnectWalletModal from "../components/ConnectWalletModal";
 import ProfileFormModal from "../components/ProfileFormModal";
 import CardSelectModal from "../components/CardSelectModal";
@@ -103,9 +104,21 @@ const Map = () => {
     month: currentMonth,
     day: currentDay,
   });
-  const [mode, setMode] = useState();
+  const [isPinMode, setIsPinMode] = useState(false);
 
   const { login, isInitializing, provider } = useWeb3Auth();
+  const { status: fetchEventsStatus, data: fetchEventsData } = useEvents();
+
+  // イベント作成モーダル
+  const onClickMapHandler = (event) => {
+    if (!isPinMode) {
+      return;
+    }
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+    console.log(lat, lng);
+    console.log(fetchEventsStatus, fetchEventsData);
+  };
 
   // 自分の現在地取得
   const getPosition = () => {
@@ -154,7 +167,7 @@ const Map = () => {
     });
   };
   // イベント取得
-  const getEventPosition = () => {
+  const getEventPosition = async () => {
     // TODO イベント取得
     // TODO テスト用　現在地を基準に3ヶ所設定
     setEventInfoList([
@@ -209,6 +222,7 @@ const Map = () => {
     <>
       <LoadScript googleMapsApiKey="AIzaSyBJ2t7R-5UmUUKZtItzAh6wMG9A_Wb6mWE">
         <GoogleMap
+          onClick={onClickMapHandler}
           mapContainerStyle={{
             height: height100vh,
             width: "100%",
@@ -222,7 +236,8 @@ const Map = () => {
           }}
         >
           <CalendarTabs setSelectedDate={setSelectedDate} />
-          <ActionButtons setMode={setMode} />
+          <ActionButtons setIsPinMode={setIsPinMode} />
+          {/* <CreateEventModal  /> */}
           <MypageButton cardImage={cardImage} plofileInfo={plofileInfo} />
           <InitialForm provider={provider} />
 
