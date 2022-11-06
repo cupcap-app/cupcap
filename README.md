@@ -3,13 +3,26 @@
 
 # Blockchain & TechStacks
 * Polygon
-   * Solidity
+   * Solidityでコントラクトを作成
+      * イベント管理コントラクト
+      * イベントNFTコントラクト
+      * POAPコントラクト
+      * 名刺NFTコントラクト
+      * 名刺デザインコントラクト   
 * ENS
-* The Graph
+   * プロフィールの保存先としてENSを選択できる
 * WeaveDB
+   * arweave上の分散型NoSQLデータベース
+   * ENSにプロフィールを保存しない場合はWeaveDBに保存する
 * arweave
+   * メタデータの保存はarweaveを利用
+* The Graph
+   * 各種コントラクトから情報取得するためのクエリを構築
 * Web3Auth
+   * Walletを持っていない人でも利用できるようにするために導入
+   * SocialSignInでノンカストディアルな秘密鍵管理が可能
 * React
+   * フロントエンドアプリはReactで構築
 
 ![architecture](https://user-images.githubusercontent.com/57611745/200159878-2942ba29-502b-425c-b107-49672fc9cc94.png)
 
@@ -17,7 +30,7 @@
 # Repository Map
 開発ドキュメントはルート直下の各種マークダウンを参照ください
 
-setupm.md: インフラ周りのセットアップなど  
+setup.md: インフラ周りのセットアップなど  
 deploy.md: コントラクトや Graph のデプロイなど  
 tips.md: FE の詰まった所の対策など
 
