@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 import { ENS } from "@ensdomains/ensjs";
 import { useWeb3Auth } from "./useWeb3Auth";
@@ -11,7 +11,7 @@ const ENS_RESOLVER_ABI = require("../abis/ens/resolvers/Resolver.sol/Resolver.js
 const ENS_REVERSE_REGISTRAR = require("../abis/ens/registry/ReverseRegistrar.sol/ReverseRegistrar.json");
 
 // 1年が何秒かを現在時刻を元に取得する
-function getOneYearInSeconds() {
+export function getOneYearInSeconds() {
   const now = new Date();
 
   const nextYear = new Date(now.getTime());
@@ -24,7 +24,7 @@ function getOneYearInSeconds() {
 }
 
 // ENSで使用するRPCURLを返す
-function getEthereumRPCURL() {
+export function getEthereumRPCURL() {
   switch (process.env.REACT_APP_NETWORK) {
     case "mainnet":
       return RPC_URLS["ethereum"]["mainnet"];
@@ -35,7 +35,7 @@ function getEthereumRPCURL() {
   return null;
 }
 
-function getENSAddresses() {
+export function getENSAddresses() {
   switch (process.env.REACT_APP_NETWORK) {
     case "mainnet":
       return ENS_CONTRACTS["mainnet"];
@@ -62,6 +62,7 @@ export const STATUS_SENDING_REGISTER = "STATUS_SENDING_REGISTER";
 export const STATUS_SENDING_REVERSE_RESOLVING =
   "STATUS_SENDING_REVERSE_RESOLVING";
 // 使用するドメインがセットされている
+export const STATUS_SETTING_PROFILE = "STATUS_SETTING_PROFILE";
 export const STATUS_DOMAIN_READY = "STATUS_DOMAIN_READY";
 
 export const useENS = () => {
@@ -73,6 +74,8 @@ export const useENS = () => {
   const [domain, setDomain] = useState(null); // xxx.eth
   // ENSjsのインスタンス
   const [ensInstance, setEnsInstance] = useState(null);
+  // registrarコントラクトのインスタンス
+  const [registrar, setRegistrar] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -92,15 +95,35 @@ export const useENS = () => {
       return;
     }
 
-    (async () => {
-      const primaryDomain = await getPrimaryDomain(walletAddress);
+    // (async () => {
+    //   const primaryDomain = await getPrimaryDomain(walletAddress);
 
-      if (primaryDomain !== null) {
-        setDomain(primaryDomain);
-        setStatus(STATUS_DOMAIN_READY);
-      }
-    })();
+    //   if (primaryDomain !== null) {
+    //     setDomain(primaryDomain);
+    //     setStatus(STATUS_DOMAIN_READY);
+    //   }
+    // })();
   }, [provider, ensInstance, walletAddress]);
+
+  useEffect(() => {
+    (async () => {
+      // Ethereumにスイッチ
+      const { provider = null } = (await changeNetwork("ethereum")) ?? {};
+      if (!provider) {
+        throw new Error("provider is not ready");
+      }
+
+      const { registrar: registrarAddress } = getENSAddresses();
+
+      const registrar = new ethers.Contract(
+        registrarAddress,
+        ENS_REGISTRAR_ABI.abi,
+        provider.getSigner()
+      );
+
+      setRegistrar(registrar);
+    })();
+  }, []);
 
   // アカウントがドメインを保有しているか
   const hasDomain = useCallback(
@@ -178,6 +201,21 @@ export const useENS = () => {
     [walletAddress]
   );
 
+  const available = useCallback(async () => {
+    return registrar.available(domain);
+  }, [registrar]);
+
+  const valid = useCallback(async () => {
+    return registrar.valid(domain);
+  }, [registrar]);
+
+  const getPrice = useCallback(
+    async (name, duration) => {
+      return registrar.rentPrice(name, duration);
+    },
+    [registrar]
+  );
+
   // ENSを登録する, もし指定したENSが取得済みだが所有者の場合は足りない処理をする
   const registerENSName = useCallback(
     // durationはドメイン保有期間の秒数
@@ -212,14 +250,7 @@ export const useENS = () => {
         resolver: resolverAddress,
         reverseRegistrar: reverseRegistrarAddress,
       } = getENSAddresses();
-      console.log("registerEnsName::ENS contracts", {
-        registrarAddress,
-        resolverAddress,
-        reverseRegistrarAddress,
-      });
-
       const signer = provider.getSigner();
-      console.log("registerEnsName::signer", signer);
 
       const registrar = new ethers.Contract(
         registrarAddress,
@@ -309,7 +340,7 @@ export const useENS = () => {
         // address
         ownerAddress,
         {
-          value: value,
+          value: value + 10,
         }
       );
 
@@ -327,12 +358,14 @@ export const useENS = () => {
 
       return domain;
     },
-    [domain]
+    [domain, hasDomain]
   );
 
   // 指定したドメインにプロフィールを登録する
   // 第二引数のオブジェクトのキーはENSで使われるキーを指定する
   const registerProfile = useCallback(async (domain, data) => {
+    setStatus(STATUS_SETTING_PROFILE);
+
     const { provider = null } = (await changeNetwork("ethereum")) ?? {};
 
     const { resolver: resolverAddress } = getENSAddresses();
@@ -359,6 +392,8 @@ export const useENS = () => {
     const setTx = await resolver.multicall(records);
 
     const setRes = await setTx.wait();
+
+    setStatus(STATUS_DOMAIN_READY);
     console.log("setRes", setRes);
   }, []);
 
@@ -390,9 +425,13 @@ export const useENS = () => {
     domain,
     status,
     getPrimaryDomain,
+    available,
+    valid,
     hasDomain,
+    getPrice,
     registerENSName,
     registerProfile,
     getProfile,
+    registerReverseResolveIfNecessary,
   };
 };
