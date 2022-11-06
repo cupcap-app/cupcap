@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Marker } from "@react-google-maps/api";
-import { Box, Button, Modal, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  ImageList,
+  ImageListItem,
+  Typography,
+} from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import { useArweave } from "../hooks/useArweave";
 import ButtonPrimary from "./ButtonPrimary";
@@ -31,6 +37,14 @@ const modalStyle = {
 const EventMarker = ({ eventInfo }) => {
   const { downloadImage, downloadJSON, uploadFile, uploadJSON } = useArweave();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // TODO 参加者取得
+  const participantImages = [
+    "https://live---metadata-5covpqijaa-uc.a.run.app/images/1316",
+    "https://live---metadata-5covpqijaa-uc.a.run.app/images/1516",
+    "https://live---metadata-5covpqijaa-uc.a.run.app/images/2316",
+    "https://live---metadata-5covpqijaa-uc.a.run.app/images/1326",
+  ];
 
   const selectImage = async (e) => {
     const res = await uploadFile(e.target.files[0]);
@@ -103,7 +117,6 @@ const EventMarker = ({ eventInfo }) => {
                   />
                 </Button>
               </Box>
-
               <Typography variant="h6" component="h2" sx={{ color: "#FFF" }}>
                 {eventInfo.title}
               </Typography>
@@ -114,7 +127,35 @@ const EventMarker = ({ eventInfo }) => {
                 2022/11/06 13:00 ~ 2022/11/06 15:00
               </Typography>
               <Typography sx={{ mt: 2, color: "#FFF" }}>Participant</Typography>
+              <ImageList
+                sx={{
+                  width: "100%",
+                  maxHeight: "10%",
+                  margin: "auto",
+                }}
+                cols={9}
+                gap={3}
+              >
+                {participantImages.map((image, index) => (
+                  <ImageListItem
+                    sx={{
+                      ".MuiImageListItem-img": {
+                        borderRadius: "50%",
+                      },
+                    }}
+                    key={image + index}
+                  >
+                    <img src={image} />
+                  </ImageListItem>
+                ))}
+              </ImageList>
               <Typography sx={{ mt: 2, color: "#FFF" }}>Location</Typography>
+              <Typography sx={{ color: "#FFF" }}>
+                {eventInfo.position.lat}
+              </Typography>
+              <Typography sx={{ color: "#FFF" }}>
+                {eventInfo.position.lng}
+              </Typography>
               <ButtonPrimary
                 text="Reserve"
                 onClickHandler={onClickReserveHandler}

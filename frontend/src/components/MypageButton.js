@@ -72,7 +72,8 @@ const MypageButton = ({ cardImage, plofileInfo }) => {
 
   const fetchNFTs = async () => {
     // TODO 100個以上持ってた場合のページネーション
-    const nftsForOwner = await alchemy.nft.getNftsForOwner(walletAddress);
+    // TODO アドレス変更
+    const nftsForOwner = await alchemy.nft.getNftsForOwner("yusaka.eth");
     console.log(nftsForOwner);
     setOwnedNfts(nftsForOwner.ownedNfts);
   };
