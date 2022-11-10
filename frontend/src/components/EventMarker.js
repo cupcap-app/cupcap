@@ -7,9 +7,12 @@ import {
   ImageListItem,
   Typography,
 } from "@mui/material";
+import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import { AnimatePresence, motion } from "framer-motion";
+import { participateEvent } from "../clients/cupcap";
 import { useArweave } from "../hooks/useArweave";
 import ButtonPrimary from "./ButtonPrimary";
+import Loading from "./Loading";
 import event_pin from "../public/event_pin.svg";
 import close_button from "../public/close_button.svg";
 import camera from "../public/camera.png";
@@ -35,8 +38,10 @@ const modalStyle = {
  * イベントマーカーコンポーネント
  */
 const EventMarker = ({ eventInfo }) => {
+  const { provider, walletAddress } = useWeb3Auth();
   const { downloadImage, downloadJSON, uploadFile, uploadJSON } = useArweave();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isParticipateLoading, setIsParticipateLoading] = useState(false);
 
   // TODO 参加者取得
   const participantImages = [
@@ -51,8 +56,11 @@ const EventMarker = ({ eventInfo }) => {
     console.log("file uploaded", res);
   };
 
-  const onClickReserveHandler = () => {
+  const onClickReserveHandler = async () => {
+    setIsParticipateLoading(true);
+    await participateEvent(provider, eventInfo.id);
     setIsModalOpen(false);
+    setIsParticipateLoading(false);
   };
 
   return (
@@ -118,7 +126,7 @@ const EventMarker = ({ eventInfo }) => {
                 </Button>
               </Box>
               <Typography variant="h6" component="h2" sx={{ color: "#FFF" }}>
-                {eventInfo.title}
+                {eventInfo.title}-{eventInfo.id}
               </Typography>
               <Typography sx={{ mt: 2, color: "#FFF" }}>
                 Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
@@ -156,10 +164,16 @@ const EventMarker = ({ eventInfo }) => {
               <Typography sx={{ color: "#FFF" }}>
                 {eventInfo.position.lng}
               </Typography>
-              <ButtonPrimary
-                text="Reserve"
-                onClickHandler={onClickReserveHandler}
-              />
+              {isParticipateLoading ? (
+                <Loading text="処理中です" />
+              ) : (
+                <>
+                  <ButtonPrimary
+                    text="Reserve"
+                    onClickHandler={onClickReserveHandler}
+                  />
+                </>
+              )}
             </Box>
           </>
         )}
