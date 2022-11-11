@@ -4,6 +4,7 @@ import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { use100vh } from "react-div-100vh";
 import mapStyles from "../utils/mapStyles";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
+import { createEvent } from "../clients/cupcap";
 import { useEvents, useEventInTimeRange } from "../hooks/useGraph";
 import ConnectWalletModal from "../components/ConnectWalletModal";
 import ProfileFormModal from "../components/ProfileFormModal";
@@ -33,8 +34,8 @@ const STATUS_DONE = "STATUS_DONE";
 
 const InitialForm = (props) => {
   const { provider } = props;
-  const [doneProfileSetting, setProfileSettingDone] = useState(false);
-  const [doneCardSetting, setCardSettingDone] = useState(false);
+  const [doneProfileSetting, setProfileSettingDone] = useState(true);
+  const [doneCardSetting, setCardSettingDone] = useState(true);
 
   const status = useMemo(() => {
     if (!provider) {
@@ -106,18 +107,30 @@ const Map = () => {
   });
   const [isPinMode, setIsPinMode] = useState(false);
 
-  const { login, isInitializing, provider } = useWeb3Auth();
+  const { login, isInitializing, provider, walletAddress } = useWeb3Auth();
   const { status: fetchEventsStatus, data: fetchEventsData } = useEvents();
 
   // イベント作成モーダル
-  const onClickMapHandler = (event) => {
+  const onClickMapHandler = async (event) => {
     if (!isPinMode) {
       return;
     }
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
     console.log(lat, lng);
-    console.log(fetchEventsStatus, fetchEventsData);
+    console.log("aaaa", fetchEventsStatus, fetchEventsData);
+    const startedAt = Math.floor(new Date().getTime() / 1000); //　unix time(秒)
+    const endedAt = Math.floor(new Date().getTime() / 1000) + 10800; //　unix time(秒)
+
+    await createEvent(
+      provider,
+      walletAddress, // 主催者アドレス
+      "", // イベントの詳細が書かれたリソースのURI
+      1000, // 参加者の上限
+      startedAt, // 開始時刻 (秒)
+      endedAt, // 終了時刻 (秒)
+      false // 主催者を参加者として追加するか
+    );
   };
 
   // 自分の現在地取得
@@ -170,48 +183,22 @@ const Map = () => {
   const getEventPosition = async () => {
     // TODO イベント取得
     // TODO テスト用　現在地を基準に3ヶ所設定
-    setEventInfoList([
-      {
-        title: "テストイベントA",
+    const events = fetchEventsData.events.map((event) => {
+      return {
+        id: event.id,
+        title: "テストイベント",
         position: {
-          lat: userPosition.lat + 0.005 * Math.random() * 2,
-          lng: userPosition.lng + 0.005 * Math.random() * 2,
+          lat: userPosition.lat + 0.01 * (Math.random() * 2 - 1),
+          lng: userPosition.lng - 0.01 * (Math.random() * 2 - 1),
         },
-      },
-      {
-        title: "テストイベントB",
-        position: {
-          lat: userPosition.lat + 0.005 * Math.random() * 2,
-          lng: userPosition.lng - 0.005 * Math.random() * 2,
-        },
-      },
-      {
-        title: "テストイベントC",
-        position: {
-          lat: userPosition.lat - 0.005 * Math.random() * 2,
-          lng: userPosition.lng - 0.005 * Math.random() * 2,
-        },
-      },
-      {
-        title: "テストイベントD",
-        position: {
-          lat: userPosition.lat - 0.005 * Math.random() * 2,
-          lng: userPosition.lng - 0.005 * Math.random() * 2,
-        },
-      },
-      {
-        title: "テストイベントE",
-        position: {
-          lat: userPosition.lat - 0.005 * Math.random() * 2,
-          lng: userPosition.lng - 0.005 * Math.random() * 2,
-        },
-      },
-    ]);
+      };
+    });
+    setEventInfoList(events);
   };
 
   useEffect(() => {
     getEventPosition();
-  }, [userPosition, selectedDate]);
+  }, [fetchEventsData, userPosition, selectedDate]);
 
   useEffect(() => {
     getPosition();
@@ -254,10 +241,7 @@ const Map = () => {
           {eventInfoList.map((eventInfo) => {
             return (
               <>
-                <EventMarker
-                  key={`${eventInfo.title}-${eventInfo.position.lat}-${eventInfo.position.lng}`}
-                  eventInfo={eventInfo}
-                />
+                <EventMarker key={`${eventInfo.id}`} eventInfo={eventInfo} />
               </>
             );
           })}

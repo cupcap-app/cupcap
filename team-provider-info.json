@@ -17,14 +17,6 @@
           "appId": "d3bsh0x62cfwgj",
           "type": "cicd"
         }
-      },
-      "function": {
-        "cupcapresourceuploader": {
-          "deploymentBucketName": "amplify-cupcap-dev-150454-deployment",
-          "s3Key": "amplify-builds/cupcapresourceuploader-534c544d7a67484a774f-build.zip",
-          "bucketName": "cupcap-keys",
-          "arweaveKeyFileName": "arweave-key.json"
-        }
       }
     }
   }
