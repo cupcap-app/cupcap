@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/react": "^2.3.7",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@ensdomains/ensjs": "^3.0.0-alpha.32",
@@ -22,6 +23,7 @@
     "framer-motion": "^7.6.4",
     "graphql-request": "^5.0.0",
     "localforage": "^1.10.0",
+    "next-qrcode": "^2.2.2",
     "ramda": "^0.28.0",
     "react": "^18.2.0",
     "react-arweave-image": "^0.2.1",
