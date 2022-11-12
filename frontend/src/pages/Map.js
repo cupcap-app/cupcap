@@ -182,16 +182,24 @@ const Map = () => {
   const getEventPosition = async () => {
     // TODO イベント取得
     // TODO テスト用　現在地を基準に3ヶ所設定
-    const events = fetchEventsData.events.map((event) => {
-      return {
-        id: event.id,
-        title: "テストイベント",
-        position: {
-          lat: userPosition.lat + 0.01 * (Math.random() * 2 - 1),
-          lng: userPosition.lng - 0.01 * (Math.random() * 2 - 1),
-        },
-      };
-    });
+    const now = new Date().getTime();
+
+    const events = fetchEventsData.events
+      .filter((event) => {
+        const endedAt = Number.parseInt(event.endedAt);
+
+        return endedAt * 1000 > now;
+      })
+      .map((event) => {
+        return {
+          id: event.id,
+          title: "テストイベント",
+          position: {
+            lat: userPosition.lat + 0.01 * (Math.random() * 2 - 1),
+            lng: userPosition.lng - 0.01 * (Math.random() * 2 - 1),
+          },
+        };
+      });
     setEventInfoList(events);
   };
 

@@ -6,8 +6,9 @@ import {
   ImageList,
   ImageListItem,
   Typography,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { useToast } from "@chakra-ui/react";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import { AnimatePresence, motion } from "framer-motion";
 import { participateEvent } from "../clients/cupcap";
@@ -44,7 +45,7 @@ const EventMarker = ({ eventInfo }) => {
   const { uploadFile } = useArweave();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isParticipateLoading, setIsParticipateLoading] = useState(false);
-  const toast = useToast();
+  const [showsToast, setShowsToast] = useState(false);
 
   // TODO 参加者取得
   const participantImages = [
@@ -63,21 +64,16 @@ const EventMarker = ({ eventInfo }) => {
     setIsParticipateLoading(true);
     await participateEvent(provider, eventInfo.id);
 
-    toast({
-      title: "Participated",
-      description: "You've participated the event",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
+    setShowsToast(true);
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 2000);
     });
 
+    setShowsToast(false);
     setIsModalOpen(false);
     setIsParticipateLoading(false);
   };
-
-  const q = useEvents();
-
-  console.log("debug::w", q);
 
   const query = useParticipantsByAccount(walletAddress);
 
@@ -86,9 +82,7 @@ const EventMarker = ({ eventInfo }) => {
 
     return (
       (query.data?.participants ?? []).find((p) => {
-        const y = Number.parseInt(p.eventID);
-
-        return Number.parseInt(p.eventID) == eventID;
+        return eventID == Number.parseInt(p.eventID);
       }) !== undefined
     );
   }, [query?.data, eventInfo]);
@@ -105,7 +99,11 @@ const EventMarker = ({ eventInfo }) => {
         clickable
         onClick={() => setIsModalOpen(true)}
       />
-
+      <Snackbar open={showsToast} autoHideDuration={3000}>
+        <Alert severity="success" sx={{ width: "100%" }}>
+          Participated
+        </Alert>
+      </Snackbar>
       <AnimatePresence>
         {isModalOpen && (
           <>
