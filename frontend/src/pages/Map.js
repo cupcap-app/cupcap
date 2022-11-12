@@ -167,16 +167,15 @@ const Map = () => {
     });
     // TODO プロフィール情報取得
     setPlofileInfo({
-      avater: "https://live---metadata-5covpqijaa-uc.a.run.app/images/6316",
-      displayName: "yusaka.eth",
-      discription:
-        "crypto botter / full stack engineer / dydx grants / TicketMe engineer @ticketme_yeah",
+      avater: "https://cupcap-images.s3.amazonaws.com/seAcDEan_400x400.jpg",
+      displayName: "keccak255.eth",
+      discription: "crypto researcher",
       url: "https://www.pedro.tokyo/",
-      email: "yusuke@ticketme.jp",
-      discord: "yusaka#7114",
+      email: "keccak255@example.jp",
+      discord: "vita#7151",
       telegram: null,
-      github: "yusakapon",
-      twitter: "yusaka_btc",
+      github: "vita",
+      twitter: "keccak255",
     });
   };
   // イベント取得

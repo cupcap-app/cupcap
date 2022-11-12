@@ -5,8 +5,6 @@ import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import Loading from "./Loading";
 import camera from "../public/camera.png";
 import {
-  getENSAddresses,
-  getEthereumRPCURL,
   getOneYearInSeconds,
   STATUS_DOMAIN_READY,
   STATUS_SENDING_COMMITMENT,

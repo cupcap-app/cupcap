@@ -119,7 +119,7 @@ export const useParticipantsByAccount = (account, queryOptions) => {
     orderDirection = "asc", //ソート方向
   } = queryOptions ?? {};
 
-  return useQuery(["participants", queryOptions], () => {
+  return useQuery(["participants", account, queryOptions], () => {
     return request(
       GRAPH_URL,
       gql`

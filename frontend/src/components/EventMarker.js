@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Marker } from "@react-google-maps/api";
 import {
   Box,
@@ -7,6 +7,7 @@ import {
   ImageListItem,
   Typography,
 } from "@mui/material";
+import { useToast } from "@chakra-ui/react";
 import { useWeb3Auth } from "../hooks/useWeb3Auth";
 import { AnimatePresence, motion } from "framer-motion";
 import { participateEvent } from "../clients/cupcap";
@@ -16,6 +17,7 @@ import Loading from "./Loading";
 import event_pin from "../public/event_pin.svg";
 import close_button from "../public/close_button.svg";
 import camera from "../public/camera.png";
+import { useEvents, useParticipantsByAccount } from "../hooks/useGraph";
 
 const modalStyle = {
   width: "75%",
@@ -39,9 +41,10 @@ const modalStyle = {
  */
 const EventMarker = ({ eventInfo }) => {
   const { provider, walletAddress } = useWeb3Auth();
-  const { downloadImage, downloadJSON, uploadFile, uploadJSON } = useArweave();
+  const { uploadFile } = useArweave();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isParticipateLoading, setIsParticipateLoading] = useState(false);
+  const toast = useToast();
 
   // TODO 参加者取得
   const participantImages = [
@@ -59,9 +62,36 @@ const EventMarker = ({ eventInfo }) => {
   const onClickReserveHandler = async () => {
     setIsParticipateLoading(true);
     await participateEvent(provider, eventInfo.id);
+
+    toast({
+      title: "Participated",
+      description: "You've participated the event",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
+
     setIsModalOpen(false);
     setIsParticipateLoading(false);
   };
+
+  const q = useEvents();
+
+  console.log("debug::w", q);
+
+  const query = useParticipantsByAccount(walletAddress);
+
+  const reserved = useMemo(() => {
+    const eventID = Number.parseInt(eventInfo.id, 16);
+
+    return (
+      (query.data?.participants ?? []).find((p) => {
+        const y = Number.parseInt(p.eventID);
+
+        return Number.parseInt(p.eventID) == eventID;
+      }) !== undefined
+    );
+  }, [query?.data, eventInfo]);
 
   return (
     <>
@@ -164,12 +194,14 @@ const EventMarker = ({ eventInfo }) => {
               <Typography sx={{ color: "#FFF" }}>
                 {eventInfo.position.lng}
               </Typography>
+
               {isParticipateLoading ? (
                 <Loading text="処理中です" />
               ) : (
                 <>
                   <ButtonPrimary
-                    text="Reserve"
+                    text={reserved ? "Reserved" : "Reserve"}
+                    disabled={reserved}
                     onClickHandler={onClickReserveHandler}
                   />
                 </>

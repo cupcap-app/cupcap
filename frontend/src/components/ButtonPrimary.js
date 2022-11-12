@@ -1,9 +1,10 @@
 import { Button } from "@mui/material";
 
-const ButtonPrimary = ({ text, onClickHandler }) => {
+const ButtonPrimary = ({ text, onClickHandler, disabled }) => {
   return (
     <Button
       variant="contained"
+      disabled={disabled}
       onClick={onClickHandler}
       sx={{
         backgroundColor: "#251E2F",
